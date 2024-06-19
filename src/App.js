@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { MapContainer, TileLayer, Popup, Marker, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Popup, Marker, useMap, GeoJSON } from 'react-leaflet';
 import './App.css';
 import { DivIcon } from 'leaflet';
+import data from './london-spots.json';
 
 const createCustomIcon = (className) => new DivIcon({
   className: '',
@@ -57,6 +58,13 @@ function LocationMarker() {
 }
 
 function App () {
+
+  const onEachFeature = (feature, layer) => {
+    if (feature.properties && feature.properties.description) {
+      layer.bindPopup(`<h3>${feature.properties.name}</h3><p>${feature.properties.description}</p>`);
+    }
+  };
+
   return (
     <div>
       <MapContainer center={[51.505, -0.09]} zoom={13}>
@@ -69,6 +77,7 @@ function App () {
             A pretty CSS3 popup. <br /> Easily customizable.
           </Popup>
         </Marker>
+        <GeoJSON data={data} onEachFeature={onEachFeature}/>
         <LocationMarker />
       </MapContainer>
     </div>

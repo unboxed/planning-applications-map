@@ -1,0 +1,61 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-0.1195, 51.5033]
+        },
+        "properties": {
+          "name": "London Eye",
+          "description": "A giant Ferris wheel on the South Bank of the River Thames."
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-0.1270, 51.5074]
+        },
+        "properties": {
+          "name": "Trafalgar Square",
+          "description": "A public square in the City of Westminster, Central London."
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-0.1246, 51.5014]
+        },
+        "properties": {
+          "name": "Buckingham Palace",
+          "description": "The London residence and administrative headquarters of the monarch of the United Kingdom."
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-0.1277, 51.5194]
+        },
+        "properties": {
+          "name": "The British Museum",
+          "description": "A public institution dedicated to human history, art and culture."
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-0.1386, 51.5090]
+        },
+        "properties": {
+          "name": "Piccadilly Circus",
+          "description": "A road junction and public space of London's West End in the City of Westminster."
+        }
+      }
+    ]
+  }
+  
