@@ -1,11 +1,65 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { MapContainer, TileLayer, Popup, Marker, useMap } from 'react-leaflet';
 import './App.css';
+import { DivIcon } from 'leaflet';
+
+const createCustomIcon = (className) => new DivIcon({
+  className: '',
+  html: `<div class="${className}"></div>`,
+  iconSize: [25, 25],
+  iconAnchor: [12, 25],
+  popupAnchor: [0, -25],
+});
+
+function LocationMarker() {
+  const [position, setPosition] = useState(null);
+  const [tracking, setTracking] = useState(false);
+  const map = useMap();
+
+  const onLocationFound = useCallback((e) => {
+    setPosition(e.latlng);
+    map.flyTo(e.latlng, map.getZoom());
+  }, [map]);
+  
+  const toggleTracking = useCallback(() => {
+    if (tracking) {
+      setTracking(false);
+      map.off('locationfound', onLocationFound);
+      setPosition(null);
+    } else {
+      setTracking(true);
+      map.on('locationfound', onLocationFound);
+      map.locate();
+    }
+  }, [tracking, map, onLocationFound]);
+
+
+  //cleanup
+  useEffect(() => {
+    return () => {
+      map.off('locationfound', onLocationFound);
+    };
+  }, [map, onLocationFound]);
+
+  return (
+    <>
+      <button onClick={toggleTracking} style={{ position: 'absolute', zIndex: 1000 }}>
+        {tracking ? 'Hide My Location' : 'Show My Location'}
+      </button>
+      {position && (
+        <Marker icon={createCustomIcon('my-location')} position={position}>
+          <Popup>You are here</Popup>
+        </Marker>
+      )}
+    </>
+  );
+
+}
 
 function App () {
   return (
     <div>
-      <MapContainer center={[51.505, -0.09]} zoom={13} scrollWheelZoom={false}>
+      <MapContainer center={[51.505, -0.09]} zoom={13}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -15,6 +69,7 @@ function App () {
             A pretty CSS3 popup. <br /> Easily customizable.
           </Popup>
         </Marker>
+        <LocationMarker />
       </MapContainer>
     </div>
   );
