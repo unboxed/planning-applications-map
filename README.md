@@ -10,4 +10,4 @@ cd into the directory of this readme and type 'npm start'
 
 ## Other notes
 
-I am temporarily including a JSON file to practice the action of reading it and displaying the information, so the code will rely on the formatting of the file for the time being hence it being included. It will follow GeoJSON format
+I am temporarily including a JSON file to practice the action of reading it and displaying the information, so the code will rely on the name of the file for the time being hence it being included. It will follow GeoJSON format

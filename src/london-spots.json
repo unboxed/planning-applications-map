@@ -1,61 +1,117 @@
 {
-    "type": "FeatureCollection",
-    "features": [
-      {
-        "type": "Feature",
-        "geometry": {
-          "type": "Point",
-          "coordinates": [-0.1195, 51.5033]
-        },
-        "properties": {
-          "name": "London Eye",
-          "description": "A giant Ferris wheel on the South Bank of the River Thames."
-        }
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-0.1195, 51.5033]
       },
-      {
-        "type": "Feature",
-        "geometry": {
-          "type": "Point",
-          "coordinates": [-0.1270, 51.5074]
-        },
-        "properties": {
-          "name": "Trafalgar Square",
-          "description": "A public square in the City of Westminster, Central London."
-        }
-      },
-      {
-        "type": "Feature",
-        "geometry": {
-          "type": "Point",
-          "coordinates": [-0.1246, 51.5014]
-        },
-        "properties": {
-          "name": "Buckingham Palace",
-          "description": "The London residence and administrative headquarters of the monarch of the United Kingdom."
-        }
-      },
-      {
-        "type": "Feature",
-        "geometry": {
-          "type": "Point",
-          "coordinates": [-0.1277, 51.5194]
-        },
-        "properties": {
-          "name": "The British Museum",
-          "description": "A public institution dedicated to human history, art and culture."
-        }
-      },
-      {
-        "type": "Feature",
-        "geometry": {
-          "type": "Point",
-          "coordinates": [-0.1386, 51.5090]
-        },
-        "properties": {
-          "name": "Piccadilly Circus",
-          "description": "A road junction and public space of London's West End in the City of Westminster."
-        }
+      "properties": {
+        "name": "London Eye",
+        "description": "A giant Ferris wheel on the South Bank of the River Thames."
       }
-    ]
-  }
-  
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-0.1270, 51.5074] 
+      },
+      "properties": {
+        "name": "Trafalgar Square",
+        "description": "A public square in the City of Westminster, Central London."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-0.1246, 51.5014] 
+      },
+      "properties": {
+        "name": "Buckingham Palace",
+        "description": "The London residence and administrative headquarters of the monarch of the United Kingdom."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-0.1277, 51.5194] 
+      },
+      "properties": {
+        "name": "The British Museum",
+        "description": "A public institution dedicated to human history, art and culture."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-0.1386, 51.5090] 
+      },
+      "properties": {
+        "name": "Piccadilly Circus",
+        "description": "A road junction and public space of London's West End in the City of Westminster."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [ 
+            [-0.1604, 51.5070],
+            [-0.1531, 51.5070],
+            [-0.1531, 51.5109],
+            [-0.1604, 51.5109],
+            [-0.1604, 51.5070]
+          ]
+        ]
+      },
+      "properties": {
+        "name": "Hyde Park",
+        "description": "One of the largest parks in London, and one of the Royal Parks of London."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [ 
+            [-0.1482, 51.5035],
+            [-0.1297, 51.5035],
+            [-0.1297, 51.5138],
+            [-0.1482, 51.5138],
+            [-0.1482, 51.5035]
+          ]
+        ]
+      },
+      "properties": {
+        "name": "City of Westminster",
+        "description": "A city within London, home to many of the landmarks of the capital."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [ 
+            [-0.1276, 51.5111],
+            [-0.1223, 51.5111],
+            [-0.1223, 51.5133],
+            [-0.1276, 51.5133],
+            [-0.1276, 51.5111]
+          ]
+        ]
+      },
+      "properties": {
+        "name": "Covent Garden",
+        "description": "A district in London, known for its street performers and historic market."
+      }
+    }
+  ]
+}
