@@ -14,5 +14,5 @@ jobs:
 
       - name: Setup Node.js
         uses: actions/setup-node@v2
-          with:
-            node-version: "20"
+        with:
+          node-version: "20"
