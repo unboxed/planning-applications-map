@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { MapContainer, TileLayer, Popup, Marker, useMap, GeoJSON } from 'react-leaflet';
+import { Button } from 'govuk-react';
 import './App.css';
 import { DivIcon } from 'leaflet';
 import data from './london-spots.json';
@@ -44,9 +45,9 @@ function LocationMarker() {
 
   return (
     <>
-      <button onClick={toggleTracking} style={{ position: 'absolute', zIndex: 1000 }}>
+      <Button onClick={toggleTracking} style={{ position: 'absolute', zIndex: 1000 }}>
         {tracking ? 'Hide My Location' : 'Show My Location'}
-      </button>
+      </Button>
       {position && (
         <Marker icon={createCustomIcon('my-location')} position={position}>
           <Popup>You are here</Popup>
@@ -67,6 +68,7 @@ function App () {
 
   return (
     <div>
+      
       <MapContainer center={[51.505, -0.09]} zoom={13}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
