@@ -14,7 +14,8 @@
     "react-leaflet": "^4.2.1",
     "react-scripts": "5.0.1",
     "sass": "^1.77.6",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "nth-check": ">=2.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
