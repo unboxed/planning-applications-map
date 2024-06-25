@@ -6,7 +6,7 @@ For now I have just uploaded a basic React app so don't have much to say here, w
 
 ## How to run
 
-cd into the directory of this readme and type 'npm start'
+cd into the directory of this readme and type 'npm install' to install dependencies and then run it by typing 'npm start'
 
 ## Other notes
 
