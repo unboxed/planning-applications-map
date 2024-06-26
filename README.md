@@ -6,8 +6,8 @@ For now I have just uploaded a basic React app so don't have much to say here, w
 
 ## How to run
 
-cd into the directory of this readme and type 'npm install' to install dependencies and then run it by typing 'npm start'
+cd into the directory of this readme and type ```npm install``` to install dependencies and then run it by typing ```npm start```
 
-## Other notes
+## Current status of project
 
-I am temporarily including a JSON file to practice the action of reading it and displaying the information, so the code will rely on the name of the file for the time being hence it being included. It will follow GeoJSON format
+This project is now fully working, it can read a json file and output the points/polygons onto the map (provided the formatting is correct) and follows the GDS (GOV.UK Design System). It currently only reads the json locally, but this can be easily implemented when ready. 
