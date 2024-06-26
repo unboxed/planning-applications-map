@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { MapContainer, TileLayer, Popup, Marker, useMap, GeoJSON } from 'react-leaflet';
+import { Button } from 'govuk-react';
 import './App.css';
+import './govuk-styles.scss';
+
 import { DivIcon } from 'leaflet';
 import data from './london-spots.json';
 
@@ -44,9 +47,9 @@ function LocationMarker() {
 
   return (
     <>
-      <button onClick={toggleTracking} style={{ position: 'absolute', zIndex: 1000 }}>
+      <Button onClick={toggleTracking} style={{ position: 'absolute', top:'93.5%', zIndex: 4000, width:'180px' }}>
         {tracking ? 'Hide My Location' : 'Show My Location'}
-      </button>
+      </Button>
       {position && (
         <Marker icon={createCustomIcon('my-location')} position={position}>
           <Popup>You are here</Popup>
@@ -63,23 +66,23 @@ function App () {
     if (feature.properties && feature.properties.description) {
       layer.bindPopup(`<h3>${feature.properties.name}</h3><p>${feature.properties.description}</p>`);
     }
+    if (feature.properties) {
+      layer.bindPopup(`<h3>${feature.properties.Name}</h3>`);
+    }
   };
 
   return (
     <div>
-      <MapContainer center={[51.505, -0.09]} zoom={13}>
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <Marker position={[51.505, -0.09]}>
-          <Popup>
-            A pretty CSS3 popup. <br /> Easily customizable.
-          </Popup>
-        </Marker>
-        <GeoJSON data={data} onEachFeature={onEachFeature}/>
-        <LocationMarker />
-      </MapContainer>
+      <div style={{ height: 'calc(100% - 30px)', position: 'relative' }}>
+        <MapContainer center={[51.505, -0.09]} zoom={13}>
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          <GeoJSON data={data} onEachFeature={onEachFeature} />
+          <LocationMarker />
+        </MapContainer>
+      </div>
     </div>
   );
 }
