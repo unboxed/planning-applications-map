@@ -47,7 +47,7 @@ function LocationMarker() {
 
   return (
     <>
-      <Button onClick={toggleTracking} style={{ position: 'absolute', top:'93.5%', zIndex: 4000 }}>
+      <Button onClick={toggleTracking} style={{ position: 'absolute', top:'93.5%', zIndex: 4000, width:'180px' }}>
         {tracking ? 'Hide My Location' : 'Show My Location'}
       </Button>
       {position && (
@@ -73,7 +73,7 @@ function App () {
 
   return (
     <div>
-      <div style={{ height: 'calc(100vh - 200px)', position: 'relative' }}>
+      <div style={{ height: 'calc(100% - 30px)', position: 'relative' }}>
         <MapContainer center={[51.505, -0.09]} zoom={13}>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
