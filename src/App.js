@@ -64,7 +64,6 @@ function LocationMarker() {
 
 // API fetch
 axios.defaults.baseURL = 'https://cors-anywhere.herokuapp.com/https://southwark.bops-staging.services';
-
 axios
   .get('/api/v2/public/planning_applications/search', {
     headers: {
@@ -72,11 +71,31 @@ axios
     }
   })
   .then((response) => {
-    let data = response;
+    parseJSON(response);
+    console.log(response)
   })
   .catch((e) => {
     console.log(e);
   });
+
+
+// Parsing data acquired from GET request
+var applicationData = {};
+
+function parseJSON (data) {
+  for (let i = 0; i < 10; i++) {
+    var currentApplication = data["data"]["data"][i.toString()];
+    applicationData[i.toString()] = {};
+    applicationData[i.toString()]["title"] = currentApplication["property"]["address"]["singleLine"];
+    applicationData[i.toString()]["latitude"] = currentApplication["property"]["address"]["latitude"];
+    applicationData[i.toString()]["longitude"] = currentApplication["property"]["address"]["longitude"];
+    applicationData[i.toString()]["status"] = currentApplication["application"]["status"];
+    applicationData[i.toString()]["description"] = currentApplication["proposal"]["description"];
+    
+  }
+}
+
+console.log(applicationData);
 
 function App () {
   
