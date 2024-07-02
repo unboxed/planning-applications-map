@@ -3,10 +3,12 @@ import { MapContainer, TileLayer, Popup, Marker, useMap, GeoJSON } from 'react-l
 import { Button } from 'govuk-react';
 import './App.css';
 import './govuk-styles.scss';
-
+import axios from 'axios';
 import { DivIcon } from 'leaflet';
 import data from './london-spots.json';
 
+
+// Current location finder
 const createCustomIcon = (className) => new DivIcon({
   className: '',
   html: `<div class="${className}"></div>`,
@@ -19,7 +21,7 @@ function LocationMarker() {
   const [position, setPosition] = useState(null);
   const [tracking, setTracking] = useState(false);
   const map = useMap();
-
+  
   const onLocationFound = useCallback((e) => {
     setPosition(e.latlng);
     map.flyTo(e.latlng, map.getZoom());
@@ -36,15 +38,15 @@ function LocationMarker() {
       map.locate();
     }
   }, [tracking, map, onLocationFound]);
-
-
+  
+  
   //cleanup
   useEffect(() => {
     return () => {
       map.off('locationfound', onLocationFound);
     };
   }, [map, onLocationFound]);
-
+  
   return (
     <>
       <Button onClick={toggleTracking} style={{ position: 'absolute', top:'93.5%', zIndex: 4000, width:'180px' }}>
@@ -57,11 +59,34 @@ function LocationMarker() {
       )}
     </>
   );
-
+  
 }
 
-function App () {
+// API fetch
 
+// fetch('/api/v2/planning_applications')
+//   .then(response => response.json())
+//   .then(data => console.log(data))
+//   .catch(error => console.error(error));
+
+
+axios.defaults.baseURL = 'https://southwark.bops-staging.services';
+
+axios
+  .get('/api/v2/public/planning_applications/search', {
+    headers: {
+      'Access-Control-Allow-Origin': '*'
+    }
+  })
+  .then((response) => {
+    console.log(response);
+  })
+  .catch((e) => {
+    console.log(e);
+  });
+
+function App () {
+  
   const onEachFeature = (feature, layer) => {
     if (feature.properties && feature.properties.description) {
       layer.bindPopup(`<h3>${feature.properties.name}</h3><p>${feature.properties.description}</p>`);

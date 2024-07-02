@@ -23,8 +23,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "eslint",
-    "postinstall": "cp -R node_modules/govuk-frontend/dist/govuk/assets/fonts public/fonts"
+    "lint": "eslint"
   },
   "eslintConfig": {
     "extends": [
@@ -48,5 +47,6 @@
     "eslint": "^8.57.0",
     "eslint-plugin-react": "^7.34.3",
     "eslint-plugin-react-hooks": "^4.6.2"
-  }
+  },
+  "proxy": "https://southwark.bops-staging.services"
 }
