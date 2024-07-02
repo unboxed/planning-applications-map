@@ -47,6 +47,5 @@
     "eslint": "^8.57.0",
     "eslint-plugin-react": "^7.34.3",
     "eslint-plugin-react-hooks": "^4.6.2"
-  },
-  "proxy": "https://southwark.bops-staging.services"
+  }
 }

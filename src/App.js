@@ -5,7 +5,7 @@ import './App.css';
 import './govuk-styles.scss';
 import axios from 'axios';
 import { DivIcon } from 'leaflet';
-import data from './london-spots.json';
+// import data from './london-spots.json';
 
 
 // Current location finder
@@ -63,14 +63,7 @@ function LocationMarker() {
 }
 
 // API fetch
-
-// fetch('/api/v2/planning_applications')
-//   .then(response => response.json())
-//   .then(data => console.log(data))
-//   .catch(error => console.error(error));
-
-
-axios.defaults.baseURL = 'https://southwark.bops-staging.services';
+axios.defaults.baseURL = 'https://cors-anywhere.herokuapp.com/https://southwark.bops-staging.services';
 
 axios
   .get('/api/v2/public/planning_applications/search', {
@@ -79,7 +72,7 @@ axios
     }
   })
   .then((response) => {
-    console.log(response);
+    let data = response;
   })
   .catch((e) => {
     console.log(e);
@@ -104,7 +97,7 @@ function App () {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          <GeoJSON data={data} onEachFeature={onEachFeature} />
+          {/* <GeoJSON data={data} onEachFeature={onEachFeature} /> */}
           <LocationMarker />
         </MapContainer>
       </div>
