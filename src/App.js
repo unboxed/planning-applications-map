@@ -65,21 +65,19 @@ function LocationMarker() {
 // API fetch
 axios.defaults.baseURL = 'https://cors-anywhere.herokuapp.com/https://southwark.bops-staging.services';
 
-async function fetchData() {
-  const response = await axios.get('/api/v2/public/planning_applications/search', {headers: { 'Access-Control-Allow-Origin': '*' }})
-  .then((response) => response)
+async function fetchData(link) {
+  const response = await axios.get(link, {headers: { 'Access-Control-Allow-Origin': '*' }})
+  .then((response) => response.data)
   .catch((e) => {console.log(e);});
   return response; 
 }
 
-var applicationData = parseJSON(await fetchData());
-console.log(applicationData);
 
 // Parsing data acquired from GET request
 function parseJSON (data) {
   var result = {};
-  for (let i = 0; i < 10; i++) {
-    var currentApplication = data.data.data[i.toString()];
+  for (let i = 0; i < Object.keys(data.data).length; i++) {
+    var currentApplication = data.data[i.toString()];
     result[i.toString()] = {
       "title" : currentApplication["property"]["address"]["singleLine"],
       "latitude" : currentApplication["property"]["address"]["latitude"],
@@ -98,7 +96,7 @@ function toGeoJSON(data) {
     "type":"FeatureCollection",
     "features":[]
   };
-
+  
   for (let i=0; i < Object.keys(data).length; i++) {
     let iter = i.toString();
     
@@ -114,9 +112,21 @@ function toGeoJSON(data) {
       },
     });
   }
-
+  
   return result;
 }
+
+// Use data locally and check for next page
+var applicationDataUnparsed = {};
+let currentPage = await fetchData('/api/v2/public/planning_applications/search');
+
+while (currentPage.links.next != null) {
+  Object.assign(applicationDataUnparsed, currentPage);
+  currentPage = await fetchData('https://cors-anywhere.herokuapp.com/' + currentPage.links.next);
+}
+
+var applicationData = parseJSON(applicationDataUnparsed);
+console.log(applicationData);
 
 var geojson = toGeoJSON(applicationData);
 console.log(geojson);
@@ -127,11 +137,9 @@ function App () {
   const onEachFeature = (feature, layer) => {
     if (feature.properties && feature.properties.description) {
       layer.bindPopup(`<h3>${feature.properties.name}</h3><p>${feature.properties.description}</p>`);
-      console.log('1');
     }
     if (feature.properties) {
       layer.bindPopup(`<h3>${feature.properties.name}</h3>`);
-      console.log('2');
     }
   };
 
