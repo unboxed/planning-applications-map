@@ -5,10 +5,7 @@ import './App.css';
 import './govuk-styles.scss';
 import axios from 'axios';
 import { DivIcon } from 'leaflet';
-import { parse } from 'nth-check';
 // import data from './london-spots.json';
-var applicationData = {};
-let parsed = false;
 
 
 // Current location finder
@@ -75,22 +72,8 @@ async function fetchData() {
   return response; 
 }
 
-applicationData = parseJSON(await fetchData());
+var applicationData = parseJSON(await fetchData());
 console.log(applicationData);
-
-
-var data = {
-  "name":"NewFeatureType",
-  "type":"FeatureCollection",
-  "features":[{
-    "type":"Feature",
-    "geometry":{
-      "type":"Marker",
-      "coordinates":[]
-    },
-    "properties":null
-  }]
-};
 
 // Parsing data acquired from GET request
 function parseJSON (data) {
@@ -108,8 +91,35 @@ function parseJSON (data) {
   return result;
 }
 
-// data.features[0].geometry.coordinates.push([applicationData["0"]["latitude"], applicationData["0"]["longitude"]]);
-// console.log(data);
+// Make data GeoJSON format
+function toGeoJSON(data) {
+  var result = {
+    "name":"NewFeatureType",
+    "type":"FeatureCollection",
+    "features":[]
+  };
+
+  for (let i=0; i < Object.keys(data).length; i++) {
+    let iter = i.toString();
+    
+    result.features.push({
+      "type":"Feature",
+      "geometry":{
+        "type":"Point",
+        "coordinates":[data[iter]["longitude"], data[iter]["latitude"]]
+      },
+      "properties":{
+        "name" : data[iter]["title"],
+        "description" : data[iter]["description"]
+      },
+    });
+  }
+
+  return result;
+}
+
+var geojson = toGeoJSON(applicationData);
+console.log(geojson);
 
 
 function App () {
@@ -117,9 +127,11 @@ function App () {
   const onEachFeature = (feature, layer) => {
     if (feature.properties && feature.properties.description) {
       layer.bindPopup(`<h3>${feature.properties.name}</h3><p>${feature.properties.description}</p>`);
+      console.log('1');
     }
     if (feature.properties) {
-      layer.bindPopup(`<h3>${feature.properties.Name}</h3>`);
+      layer.bindPopup(`<h3>${feature.properties.name}</h3>`);
+      console.log('2');
     }
   };
 
@@ -131,7 +143,7 @@ function App () {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          {/* <GeoJSON data={data} onEachFeature={onEachFeature} /> */}
+          <GeoJSON data={geojson} onEachFeature={onEachFeature} />
           <LocationMarker />
         </MapContainer>
       </div>

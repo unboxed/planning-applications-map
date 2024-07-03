@@ -8,4 +8,4 @@ cd into the directory of this readme and type ```npm install``` to install all r
 
 ## Current status of project
 
-This project is now fully working, it can read a json file and output the points/polygons onto the map (provided the formatting is correct) and follows the GDS (GOV.UK Design System). It is currently in the process of getting a JSON from the api and parsing the information to display. 
+This project is now fully working, it can read a json file and output the points/polygons onto the map (provided the formatting is correct) and follows the GDS (GOV.UK Design System). It currently uses GET from the demo server on https://cors-anywhere.herokuapp.com/https://southwark.bops-staging.services so if you are running locally you may have to go to this site and click the button for temporary access.
