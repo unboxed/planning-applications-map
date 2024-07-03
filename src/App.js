@@ -63,10 +63,13 @@ function LocationMarker() {
 }
 
 // API fetch
-axios.defaults.baseURL = 'https://cors-anywhere.herokuapp.com/https://southwark.bops-staging.services';
+axios.defaults.baseURL = 'http://localhost:8080/https://southwark.bops-staging.services';
 
 async function fetchData(link) {
-  const response = await axios.get(link, {headers: { 'Access-Control-Allow-Origin': '*' }})
+  const response = await axios.get(link, {
+    params: { maxresults : 50 },
+    headers: { 'Access-Control-Allow-Origin': '*' }
+  })
   .then((response) => response.data)
   .catch((e) => {console.log(e);});
   return response; 
@@ -99,7 +102,6 @@ function toGeoJSON(data) {
   
   for (let i=0; i < Object.keys(data).length; i++) {
     let iter = i.toString();
-    
     result.features.push({
       "type":"Feature",
       "geometry":{
@@ -117,20 +119,9 @@ function toGeoJSON(data) {
 }
 
 // Use data locally and check for next page
-var applicationDataUnparsed = {};
-let currentPage = await fetchData('/api/v2/public/planning_applications/search');
-
-while (currentPage.links.next != null) {
-  Object.assign(applicationDataUnparsed, currentPage);
-  currentPage = await fetchData('https://cors-anywhere.herokuapp.com/' + currentPage.links.next);
-}
-
+var applicationDataUnparsed = await fetchData('/api/v2/public/planning_applications/search');
 var applicationData = parseJSON(applicationDataUnparsed);
-console.log(applicationData);
-
 var geojson = toGeoJSON(applicationData);
-console.log(geojson);
-
 
 function App () {
   
