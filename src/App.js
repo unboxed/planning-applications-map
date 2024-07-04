@@ -6,6 +6,9 @@ import './govuk-styles.scss';
 import axios from 'axios';
 import { DivIcon } from 'leaflet';
 // import data from './london-spots.json';
+let pageSize = 50;
+let applicationData = {};
+
 
 
 // Current location finder
@@ -62,9 +65,6 @@ function LocationMarker() {
   
 }
 
-let pageSize = 50;
-let applicationData = {};
-
 // API fetch
 async function fetchData(link) {
   const response = await axios.get(link, {
@@ -115,15 +115,17 @@ function toGeoJSON(data) {
   return result;
 }
 
-// Use data locally and check for next page
-var applicationDataUnparsed = await fetchData('https://southwark.bops-staging.services/api/v2/public/planning_applications/search');
+// parse first page's data
+var currentPageData = await fetchData('https://southwark.bops-staging.services/api/v2/public/planning_applications/search');
+parseJSON(currentPageData, 0);
+let i = 1;
 
-var page2Data = await fetchData(applicationDataUnparsed.links.next);
-
-parseJSON(applicationDataUnparsed, 0);
-parseJSON(page2Data, 1);
-console.log(applicationData);
-
+// iterate through all pages and parse data
+while (currentPageData.links.next != null) {
+  currentPageData = await fetchData(currentPageData.links.next);
+  parseJSON(currentPageData, i);
+  i++;
+}
 
 var geojson = toGeoJSON(applicationData);
 
