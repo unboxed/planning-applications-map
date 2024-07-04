@@ -49,7 +49,7 @@ function LocationMarker() {
   
   return (
     <>
-      <Button onClick={toggleTracking} style={{ position: 'absolute', top:'93.5%', zIndex: 4000, width:'180px' }}>
+      <Button onClick={toggleTracking} style={{ position: 'absolute', top:'93.5%', zIndex: 4000, width:'182px' }}>
         {tracking ? 'Hide My Location' : 'Show My Location'}
       </Button>
       {position && (
@@ -62,25 +62,24 @@ function LocationMarker() {
   
 }
 
-// API fetch
-axios.defaults.baseURL = 'https://southwark.bops-staging.services';
+let pageSize = 50;
+let applicationData = {};
 
+// API fetch
 async function fetchData(link) {
   const response = await axios.get(link, {
-    params: { maxresults : 50 }
+    params: { maxresults : pageSize }
   })
   .then((response) => response.data)
   .catch((e) => {console.log(e);});
   return response; 
 }
 
-
 // Parsing data acquired from GET request
-function parseJSON (data) {
-  var result = {};
+function parseJSON (data, iter) {
   for (let i = 0; i < Object.keys(data.data).length; i++) {
     var currentApplication = data.data[i.toString()];
-    result[i.toString()] = {
+    applicationData[(i + iter * pageSize).toString()] = {
       "title" : currentApplication["property"]["address"]["singleLine"],
       "latitude" : currentApplication["property"]["address"]["latitude"],
       "longitude" : currentApplication["property"]["address"]["longitude"],
@@ -88,7 +87,6 @@ function parseJSON (data) {
       "description" : currentApplication["proposal"]["description"]
     }
   }
-  return result;
 }
 
 // Make data GeoJSON format
@@ -118,8 +116,15 @@ function toGeoJSON(data) {
 }
 
 // Use data locally and check for next page
-var applicationDataUnparsed = await fetchData('/api/v2/public/planning_applications/search');
-var applicationData = parseJSON(applicationDataUnparsed);
+var applicationDataUnparsed = await fetchData('https://southwark.bops-staging.services/api/v2/public/planning_applications/search');
+
+var page2Data = await fetchData(applicationDataUnparsed.links.next);
+
+parseJSON(applicationDataUnparsed, 0);
+parseJSON(page2Data, 1);
+console.log(applicationData);
+
+
 var geojson = toGeoJSON(applicationData);
 
 function App () {
