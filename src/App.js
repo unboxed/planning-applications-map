@@ -63,7 +63,7 @@ function LocationMarker() {
 }
 
 // API fetch
-axios.defaults.baseURL = 'http://localhost:8080/https://southwark.bops-staging.services';
+axios.defaults.baseURL = 'https://southwark.bops-staging.services';
 
 async function fetchData(link) {
   const response = await axios.get(link, {
