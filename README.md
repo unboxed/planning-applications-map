@@ -8,4 +8,4 @@ cd into the directory of this readme and type ```npm install``` to install all r
 
 ## Current status of project
 
-This project is now fully working, it can read a json file and output the points/polygons onto the map (provided the formatting is correct) and follows the GDS (GOV.UK Design System). It currently uses GET from running a local cors-anywhere server which you can set up [here](https://github.com/Rob--W/cors-anywhere#demo-server).
+This project is now fully working, it can read a json file and output the points/polygons onto the map (provided the formatting is correct) and follows the GDS (GOV.UK Design System). It uses a GET call from the [bops staging API](https://southwark.bops-staging.services/api/docs/index.html?urls.primaryName=API%20V2%20Docs]) and then formats and displays all found planning applications on the interactive map. Adding a description of the planning applications is needed.
