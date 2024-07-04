@@ -67,8 +67,7 @@ axios.defaults.baseURL = 'https://southwark.bops-staging.services';
 
 async function fetchData(link) {
   const response = await axios.get(link, {
-    params: { maxresults : 50 },
-    headers: { 'Access-Control-Allow-Origin': '*' }
+    params: { maxresults : 50 }
   })
   .then((response) => response.data)
   .catch((e) => {console.log(e);});
