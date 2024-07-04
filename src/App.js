@@ -10,7 +10,6 @@ let pageSize = 50;
 let applicationData = {};
 
 
-
 // Current location finder
 const createCustomIcon = (className) => new DivIcon({
   className: '',
@@ -52,7 +51,7 @@ function LocationMarker() {
   
   return (
     <>
-      <Button onClick={toggleTracking} style={{ position: 'absolute', top:'93.5%', zIndex: 4000, width:'182px' }}>
+      <Button onClick={toggleTracking} style={{ position: 'absolute', top:'93.5%', zIndex: 4000, width:'185px' }}>
         {tracking ? 'Hide My Location' : 'Show My Location'}
       </Button>
       {position && (
@@ -107,7 +106,8 @@ function toGeoJSON(data) {
       },
       "properties":{
         "name" : data[iter]["title"],
-        "description" : data[iter]["description"]
+        "description" : data[iter]["description"],
+        "status" : data[iter]["status"]
       },
     });
   }
@@ -129,14 +129,22 @@ while (currentPageData.links.next != null) {
 
 var geojson = toGeoJSON(applicationData);
 
+console.log(geojson);
+
 function App () {
   
   const onEachFeature = (feature, layer) => {
-    if (feature.properties && feature.properties.description) {
-      layer.bindPopup(`<h3>${feature.properties.name}</h3><p>${feature.properties.description}</p>`);
+    if (feature.properties && feature.properties.description && feature.properties.status) {
+      layer.bindPopup(`<h3 class="govuk-heading-m" style="font-size: 20px">${feature.properties.name}</h3>
+        <p class="govuk-body" style="font-size: 14px">Planned work: ${feature.properties.description}</p>
+        <p class="govuk-body" style="font-size: 14px">Current status: ${feature.properties.status}</p>`);
     }
-    if (feature.properties) {
-      layer.bindPopup(`<h3>${feature.properties.name}</h3>`);
+    else if (feature.properties && feature.properties.description) {
+      layer.bindPopup(`<h3 class="govuk-heading-m" style="font-size: 20px">${feature.properties.name}</h3>
+        <p class="govuk-body" style="font-size: 14px">Planned work: ${feature.properties.description}</p>`);
+    }
+    else if (feature.properties) {
+      layer.bindPopup(`<h3 class="govuk-heading-m" style="font-size: 20px">${feature.properties.name}</h3>`);
     }
   };
 
