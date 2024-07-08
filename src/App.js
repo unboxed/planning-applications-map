@@ -10,7 +10,6 @@ let pageSize = 50;
 let applicationData = {};
 
 
-// Current location finder
 const createCustomIcon = (className) => new DivIcon({
   className: '',
   html: `<div class="${className}"></div>`,
@@ -19,6 +18,7 @@ const createCustomIcon = (className) => new DivIcon({
   popupAnchor: [0, -25],
 });
 
+// Current location finder
 function LocationMarker() {
   const [position, setPosition] = useState(null);
   const [tracking, setTracking] = useState(false);
@@ -128,8 +128,6 @@ while (currentPageData.links.next != null) {
 }
 
 var geojson = toGeoJSON(applicationData);
-
-console.log(geojson);
 
 function App () {
   
