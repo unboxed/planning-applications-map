@@ -146,9 +146,23 @@ var geojson = toGeoJSON(applicationData);
 
 // search for refernce no
 function search() {
+  var result = {
+    "name":"NewFeatureType",
+    "type":"FeatureCollection",
+    "features":[]
+  };
+
   const searchInput = document.getElementById('searchInput');
-  console.log(searchInput.value);
+  for (const entry of geojson.features) {
+    if (entry.properties.reference === searchInput.value) {
+      console.log('found!');
+      result.features.push(entry);
+    }
+  }
+
+  console.log(result);
 }
+// 24-00635-PA14J 23-00464-HAPP 23-00453-LDCP
 
 function App () {
   
