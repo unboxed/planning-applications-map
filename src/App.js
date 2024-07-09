@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { MapContainer, TileLayer, Popup, Marker, useMap, GeoJSON } from 'react-leaflet';
-import { Button } from 'govuk-react';
+import { Button, SearchBox } from 'govuk-react';
 import './App.css';
 import './govuk-styles.scss';
 import axios from 'axios';
@@ -144,7 +144,14 @@ while (currentPageData.links.next != null) {
 
 var geojson = toGeoJSON(applicationData);
 
+// search for refernce no
+function search() {
+  const searchInput = document.getElementById('searchInput');
+  console.log(searchInput.value);
+}
+
 function App () {
+  
   
   const onEachFeature = (feature, layer) => {
     if (feature.properties && feature.properties.description && feature.properties.status) {
@@ -164,6 +171,13 @@ function App () {
 
   return (
     <div>
+      <div>
+        <SearchBox>
+          <SearchBox.Input id="searchInput" placeholder="Search for a reference number" />
+          <SearchBox.Button onClick={search} />
+        </SearchBox>
+      </div>
+      <br />
       <div style={{ height: 'calc(100% - 30px)', position: 'relative' }}>
         <MapContainer center={[51.505, -0.09]} zoom={13}>
           <TileLayer
