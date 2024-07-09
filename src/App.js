@@ -127,21 +127,34 @@ function toGeoJSON(data) {
   return result;
 }
 
-// parse first page's data
-var currentPageData = await fetchData('https://southwark.bops-staging.services/api/v2/public/planning_applications/search');
-parseJSON(currentPageData, 0);
-let i = 1;
-
-// iterate through all pages and parse data
-while (currentPageData.links.next != null) {
-  currentPageData = await fetchData(currentPageData.links.next);
-  parseJSON(currentPageData, i);
-  i++;
+async function getGeoJSON() {
+  var currentPageData = await fetchData('https://southwark.bops-staging.services/api/v2/public/planning_applications/search');
+  if (currentPageData) {
+    parseJSON(currentPageData, 0);
+    let i = 1;
+    while (currentPageData.links && currentPageData.links.next != null) {
+      currentPageData = await fetchData(currentPageData.links.next);
+      if (currentPageData) {
+        parseJSON(currentPageData, i);
+        i++;
+      } else {
+        break;
+      }
+    }
+  }
+  return toGeoJSON(applicationData);
 }
 
-var geojson = toGeoJSON(applicationData);
-
 function App () {
+  const [geojson, setGeoJSON] = useState(null);
+
+  useEffect(() => {
+    async function fetchData() {
+      const data = await getGeoJSON();
+      setGeoJSON(data);
+    }
+    fetchData();
+  }, []);
   
   const onEachFeature = (feature, layer) => {
     if (feature.properties && feature.properties.description && feature.properties.status) {
