@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import './App.js';
+import App from './App.js';
 
 test('Header is shown on site', () => {
     render(<App />);
