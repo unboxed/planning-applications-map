@@ -6,6 +6,7 @@ import './govuk-styles.scss';
 import axios from 'axios';
 import { DivIcon } from 'leaflet';
 // import data from './london-spots.json';
+
 let pageSize = 50;
 let applicationData = {};
 
@@ -65,14 +66,25 @@ function LocationMarker() {
 }
 
 // API fetch
+// async function fetchData(link) {
+//   const response = await axios.get(link, {
+//     params: { maxresults: pageSize }
+//   })
+//     .then((response) => response.data)
+//     .catch((e) => { console.log(e); });
+//   return response;
+// }
 async function fetchData(link) {
-  const response = await axios.get(link, {
-    params: { maxresults : pageSize }
-  })
-  .then((response) => response.data)
-  .catch((e) => {console.log(e);});
-  return response; 
+  try {
+    const response = await axios.get(link, {
+      params: { maxresults: pageSize }
+    });
+    return response.data;
+  } catch (e) {
+    console.log(e);
+  }
 }
+
 
 // Parsing data acquired from GET request
 function parseJSON (data, iter) {
