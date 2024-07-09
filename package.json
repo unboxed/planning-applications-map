@@ -44,7 +44,18 @@
       "last 1 safari version"
     ]
   },
+  "babel": {
+    "presets": [
+      "@babel/preset-react",
+      "@babel/preset-env"
+    ],
+    "plugins": [
+      "@babel/plugin-transform-modules-commonjs",
+      "@babel/plugin-transform-react-jsx"
+    ]
+  },
   "devDependencies": {
+    "@babel/plugin-transform-react-jsx": "^7.24.7",
     "eslint": "^8.57.0",
     "eslint-plugin-react": "^7.34.3",
     "eslint-plugin-react-hooks": "^4.6.2",

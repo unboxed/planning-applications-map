@@ -77,7 +77,8 @@ function LocationMarker() {
 async function fetchData(link) {
   try {
     const response = await axios.get(link, {
-      params: { maxresults: pageSize }
+      params: { maxresults: pageSize,
+       }
     });
     return response.data;
   } catch (e) {
@@ -95,7 +96,8 @@ function parseJSON (data, iter) {
       "latitude" : currentApplication["property"]["address"]["latitude"],
       "longitude" : currentApplication["property"]["address"]["longitude"],
       "status" : currentApplication["application"]["status"],
-      "description" : currentApplication["proposal"]["description"]
+      "reference" : currentApplication["application"]["reference"],
+      "description" : currentApplication["proposal"]["description"],
     }
   }
 }
@@ -119,7 +121,8 @@ function toGeoJSON(data) {
       "properties":{
         "name" : data[iter]["title"],
         "description" : data[iter]["description"],
-        "status" : data[iter]["status"]
+        "status" : data[iter]["status"],
+        "reference" : data[iter]["reference"]
       },
     });
   }
@@ -146,6 +149,7 @@ function App () {
   const onEachFeature = (feature, layer) => {
     if (feature.properties && feature.properties.description && feature.properties.status) {
       layer.bindPopup(`<h3 class="govuk-heading-m" style="font-size: 20px">${feature.properties.name}</h3>
+        <p class="govuk-body" style="font-size: 14px">Reference: ${feature.properties.reference}</p>
         <p class="govuk-body" style="font-size: 14px">Planned work: ${feature.properties.description}</p>
         <p class="govuk-body" style="font-size: 14px">Current status: ${feature.properties.status}</p>`);
     }
