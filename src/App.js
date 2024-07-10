@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { MapContainer, TileLayer, Popup, Marker, useMap, GeoJSON } from 'react-leaflet';
 import { Button, SearchBox } from 'govuk-react';
 import './App.css';
@@ -120,9 +120,9 @@ function toGeoJSON(data) {
 
 function App () {
 
-  const mapRef = useRef(null);
   const [geojson, setGeojson] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [map, setMap] = useState(null);
 
   useEffect(() => {
     let applicationData = {};
@@ -140,12 +140,8 @@ function App () {
         i++;
       }
 
-      // console.log(applicationData);
-
       setGeojson(toGeoJSON(applicationData));
       setLoading(false);
-
-      // console.log(toGeoJSON(applicationData));
     }
 
     loadData();
@@ -168,54 +164,36 @@ function App () {
     }
   };
 
-  const Search = () => {
-
-    const map = useMap();
+  const search = () => {
     if (!map) {return}
-  
-    let result = {
-      "name":"NewFeatureType",
-      "type":"FeatureCollection",
-      "features":[]
-    };
   
     const searchInput = document.getElementById('searchInput');
 
-    function search() {
-      for (const entry of geojson.features) {
-        if (entry.properties.reference === searchInput.value) {
-          console.log('found!');
-          result.features.push(entry);
-          map.flyTo(entry.geometry.coordinates, map.getZoom());
-        }
+    for (const entry of geojson.features) {
+      if (entry.properties.reference === searchInput.value) {
+        console.log('found!');
+        map.flyTo([entry.geometry.coordinates[1], entry.geometry.coordinates[0]], map.getZoom());
       }
     }
-
-    return (
-    <div>
-      <SearchBox>
-        <SearchBox.Input id="searchInput" placeholder="Search for a reference number" />
-        <SearchBox.Button onClick={search}/>
-      </SearchBox>
-    </div>);
   };
-
-  console.log(geojson);
 
   if (loading) {return (<div>Loading...</div>);}
 
   return (
     <div>
+      <SearchBox style={{zIndex:4000}}>
+        <SearchBox.Input id="searchInput" placeholder="Search for a reference number" style={{zIndex:4000}} />
+        <SearchBox.Button onClick={search} style={{zIndex:4000}} />
+      </SearchBox>
+      <br />
       <div style={{ height: 'calc(100% - 30px)', position: 'relative' }}>
-        <MapContainer whenCreated={(map) => {mapRef.current = map}} center={[51.505, -0.09]} zoom={13}>
+        <MapContainer ref={setMap} center={[51.505, -0.09]} zoom={13}>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           <GeoJSON data={geojson} onEachFeature={onEachFeature} />
           <LocationMarker />
-          <br /> 
-          <Search />
         </MapContainer>
       </div>
     </div>
