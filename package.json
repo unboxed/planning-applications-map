@@ -9,6 +9,7 @@
     "axios": "^1.7.2",
     "govuk-frontend": "^5.4.0",
     "govuk-react": "^0.10.7",
+    "jest": "^27.5.1",
     "leaflet": "^1.9.4",
     "nth-check": ">=2.0.1",
     "react": "^18.3.1",
@@ -21,7 +22,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "jest",
     "eject": "react-scripts eject",
     "lint": "eslint"
   },
@@ -43,9 +44,21 @@
       "last 1 safari version"
     ]
   },
+  "babel": {
+    "presets": [
+      "@babel/preset-react",
+      "@babel/preset-env"
+    ],
+    "plugins": [
+      "@babel/plugin-transform-modules-commonjs",
+      "@babel/plugin-transform-react-jsx"
+    ]
+  },
   "devDependencies": {
+    "@babel/plugin-transform-react-jsx": "^7.24.7",
     "eslint": "^8.57.0",
     "eslint-plugin-react": "^7.34.3",
-    "eslint-plugin-react-hooks": "^4.6.2"
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "react-test-renderer": "^18.3.1"
   }
 }
