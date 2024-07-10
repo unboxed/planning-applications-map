@@ -24,7 +24,7 @@ function LocationMarker() {
   
   const onLocationFound = useCallback((e) => {
     setPosition(e.latlng);
-    map.flyTo(e.latlng, map.getZoom());
+    map.flyTo(e.latlng, 13);
   }, [map]);
   
   const toggleTracking = useCallback(() => {
@@ -172,7 +172,7 @@ function App () {
     for (const entry of geojson.features) {
       if (entry.properties.reference === searchInput.value) {
         console.log('found!');
-        map.flyTo([entry.geometry.coordinates[1], entry.geometry.coordinates[0]], map.getZoom());
+        map.flyTo([entry.geometry.coordinates[1], entry.geometry.coordinates[0]], 13);
       }
     }
   };
