@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { MapContainer, TileLayer, Popup, Marker, useMap, GeoJSON } from 'react-leaflet';
 import { Button, SearchBox } from 'govuk-react';
 import './App.css';
@@ -6,10 +6,7 @@ import './govuk-styles.scss';
 import axios from 'axios';
 import { DivIcon } from 'leaflet';
 // import data from './london-spots.json';
-
 let pageSize = 50;
-let applicationData = {};
-
 
 const createCustomIcon = (className) => new DivIcon({
   className: '',
@@ -42,7 +39,6 @@ function LocationMarker() {
     }
   }, [tracking, map, onLocationFound]);
   
-  
   //cleanup
   useEffect(() => {
     return () => {
@@ -62,19 +58,9 @@ function LocationMarker() {
       )}
     </>
   );
-  
 }
 
-// API fetch
-// async function fetchData(link) {
-//   const response = await axios.get(link, {
-//     params: { maxresults: pageSize }
-//   })
-//     .then((response) => response.data)
-//     .catch((e) => { console.log(e); });
-//   return response;
-// }
-async function fetchData(link) {
+const fetchData = async(link) => {
   try {
     const response = await axios.get(link, {
       params: { maxresults: pageSize,
@@ -88,7 +74,7 @@ async function fetchData(link) {
 
 
 // Parsing data acquired from GET request
-function parseJSON (data, iter) {
+function parseJSON (data, iter, applicationData) {
   for (let i = 0; i < Object.keys(data.data).length; i++) {
     var currentApplication = data.data[i.toString()];
     applicationData[(i + iter * pageSize).toString()] = {
@@ -130,43 +116,42 @@ function toGeoJSON(data) {
   return result;
 }
 
-// parse first page's data
-var currentPageData = await fetchData('https://southwark.bops-staging.services/api/v2/public/planning_applications/search');
-parseJSON(currentPageData, 0);
-let i = 1;
-
-// iterate through all pages and parse data
-while (currentPageData.links.next != null) {
-  currentPageData = await fetchData(currentPageData.links.next);
-  parseJSON(currentPageData, i);
-  i++;
-}
-
-var geojson = toGeoJSON(applicationData);
-
-// search for refernce no
-function search() {
-  var result = {
-    "name":"NewFeatureType",
-    "type":"FeatureCollection",
-    "features":[]
-  };
-
-  const searchInput = document.getElementById('searchInput');
-  for (const entry of geojson.features) {
-    if (entry.properties.reference === searchInput.value) {
-      console.log('found!');
-      result.features.push(entry);
-    }
-  }
-
-  console.log(result);
-}
 // 24-00635-PA14J 23-00464-HAPP 23-00453-LDCP
 
 function App () {
-  
-  
+
+  const mapRef = useRef(null);
+  const [geojson, setGeojson] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let applicationData = {};
+
+    const loadData = async() => {
+      // parse first page's data
+      let currentPageData = await fetchData('https://southwark.bops-staging.services/api/v2/public/planning_applications/search');
+      parseJSON(currentPageData, 0, applicationData);
+      let i = 1;
+
+      // iterate through all other pages and parse data
+      while (currentPageData.links.next != null) {
+        currentPageData = await fetchData(currentPageData.links.next);
+        parseJSON(currentPageData, i, applicationData);
+        i++;
+      }
+
+      // console.log(applicationData);
+
+      setGeojson(toGeoJSON(applicationData));
+      setLoading(false);
+
+      // console.log(toGeoJSON(applicationData));
+    }
+
+    loadData();
+  }, []);
+
+
   const onEachFeature = (feature, layer) => {
     if (feature.properties && feature.properties.description && feature.properties.status) {
       layer.bindPopup(`<h3 class="govuk-heading-m" style="font-size: 20px">${feature.properties.name}</h3>
@@ -183,23 +168,54 @@ function App () {
     }
   };
 
+  const Search = () => {
+
+    const map = useMap();
+    if (!map) {return}
+  
+    let result = {
+      "name":"NewFeatureType",
+      "type":"FeatureCollection",
+      "features":[]
+    };
+  
+    const searchInput = document.getElementById('searchInput');
+
+    function search() {
+      for (const entry of geojson.features) {
+        if (entry.properties.reference === searchInput.value) {
+          console.log('found!');
+          result.features.push(entry);
+          map.flyTo(entry.geometry.coordinates, map.getZoom());
+        }
+      }
+    }
+
+    return (
+    <div>
+      <SearchBox>
+        <SearchBox.Input id="searchInput" placeholder="Search for a reference number" />
+        <SearchBox.Button onClick={search}/>
+      </SearchBox>
+    </div>);
+  };
+
+  console.log(geojson);
+
+  if (loading) {return (<div>Loading...</div>);}
+
   return (
     <div>
-      <div>
-        <SearchBox>
-          <SearchBox.Input id="searchInput" placeholder="Search for a reference number" />
-          <SearchBox.Button onClick={search} />
-        </SearchBox>
-      </div>
-      <br />
       <div style={{ height: 'calc(100% - 30px)', position: 'relative' }}>
-        <MapContainer center={[51.505, -0.09]} zoom={13}>
+        <MapContainer whenCreated={(map) => {mapRef.current = map}} center={[51.505, -0.09]} zoom={13}>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           <GeoJSON data={geojson} onEachFeature={onEachFeature} />
           <LocationMarker />
+          <br /> 
+          <Search />
         </MapContainer>
       </div>
     </div>
