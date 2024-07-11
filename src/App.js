@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { MapContainer, TileLayer, Popup, Marker, useMap, GeoJSON } from 'react-leaflet';
-import { Button, SearchBox, ErrorText } from 'govuk-react';
+import { Button, SearchBox, ErrorText, HintText } from 'govuk-react';
 import './App.css';
 import './govuk-styles.scss';
 import axios from 'axios';
@@ -85,7 +85,6 @@ const fetchPostCode = async(postcode) => {
   }
 }
 
-
 // Parsing data acquired from GET request
 function parseJSON (data, iter, applicationData) {
   for (let i = 0; i < Object.keys(data.data).length; i++) {
@@ -136,13 +135,6 @@ function App () {
   const [geojson, setGeojson] = useState(null);
   const [loading, setLoading] = useState(true);
   const [map, setMap] = useState(null);
-
-  var input = document.getElementById("searchInput");
-  input.addEventListener("keypress", function(event) {
-    if (event.key === "Enter") {
-      document.getElementById("searchBtn").click();
-    }
-  });
   
   useEffect(() => {
     let applicationData = {};
@@ -208,13 +200,26 @@ function App () {
     }
   };
 
+  const bindSearchToEnter = () => {
+    var input = document.getElementById("searchInput");
+    if (input === null) { return }
+    input.addEventListener("keypress", function (event) {
+      if (event.key === "Enter") {
+        document.getElementById("searchBtn").click();
+      }
+    });
+  }
+
+  bindSearchToEnter();
+
   if (loading) {return (<div>Loading...</div>);}
 
   return (
     <div>
-      <SearchBox style={{zIndex:4000}}>
-        <SearchBox.Input id="searchInput" placeholder="Enter a reference number or postcode" style={{zIndex:4000}} />
-        <SearchBox.Button id="searchBtn" onClick={search} style={{zIndex:4000}} />
+      <HintText>Enter a reference number or postcode</HintText>
+      <SearchBox>
+        <SearchBox.Input id="searchInput" placeholder="Type here" />
+        <SearchBox.Button id="searchBtn" onClick={search} />
       </SearchBox>
       <ErrorText id="errorMsg"></ErrorText>
       <div style={{ height: 'calc(100% - 30px)', position: 'relative' }}>
