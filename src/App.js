@@ -7,6 +7,7 @@ import axios from 'axios';
 import { DivIcon } from 'leaflet';
 // import data from './london-spots.json';
 let pageSize = 50;
+let zoomSize = 16;
 
 const createCustomIcon = (className) => new DivIcon({
   className: '',
@@ -24,7 +25,7 @@ function LocationMarker() {
   
   const onLocationFound = useCallback((e) => {
     setPosition(e.latlng);
-    map.flyTo(e.latlng, 13);
+    map.flyTo(e.latlng, zoomSize);
   }, [map]);
   
   const toggleTracking = useCallback(() => {
@@ -67,6 +68,18 @@ const fetchData = async(link) => {
        }
     });
     return response.data;
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+const fetchPostCode = async(postcode) => {
+  try {
+    const response = await axios.get('https://api.postcodes.io/postcodes/' + postcode);
+    if (response.status === 200) {
+      return [response.data.result.longitude, response.data.result.latitude];
+    }
+    else {return 'failed!'}
   } catch (e) {
     console.log(e);
   }
@@ -116,7 +129,7 @@ function toGeoJSON(data) {
   return result;
 }
 
-// 24-00635-PA14J 23-00464-HAPP 23-00453-LDCP
+
 
 function App () {
 
@@ -164,15 +177,22 @@ function App () {
     }
   };
 
-  const search = () => {
+  const search = async() => {
     if (!map) {return}
   
-    const searchInput = document.getElementById('searchInput');
-
+    const searchInput = document.getElementById('searchInput').value;
+    
     for (const entry of geojson.features) {
-      if (entry.properties.reference === searchInput.value) {
-        console.log('found!');
-        map.flyTo([entry.geometry.coordinates[1], entry.geometry.coordinates[0]], 13);
+      if (entry.properties.reference === searchInput) {
+        map.flyTo([entry.geometry.coordinates[1], entry.geometry.coordinates[0]], 18);
+      }
+    }
+
+    const postcodeRegex = /^[A-Z]{1,2}[0-9RCHNQ][0-9A-Z]?\s?[0-9][ABD-HJLNP-UW-Z]{2}$|^[A-Z]{2}-?[0-9]{4}$/;
+    if (postcodeRegex.test(searchInput.toUpperCase())){
+      let postcodeCoords = await fetchPostCode(searchInput);
+      if (postcodeCoords !== 'failed!') {
+        map.flyTo([postcodeCoords[1], postcodeCoords[0]], zoomSize);
       }
     }
   };
@@ -182,7 +202,7 @@ function App () {
   return (
     <div>
       <SearchBox style={{zIndex:4000}}>
-        <SearchBox.Input id="searchInput" placeholder="Search for a reference number" style={{zIndex:4000}} />
+        <SearchBox.Input id="searchInput" placeholder="Search for a reference number or enter a postcode" style={{zIndex:4000}} />
         <SearchBox.Button onClick={search} style={{zIndex:4000}} />
       </SearchBox>
       <br />
