@@ -143,7 +143,7 @@ function App () {
       document.getElementById("searchBtn").click();
     }
   });
-
+  
   useEffect(() => {
     let applicationData = {};
 
