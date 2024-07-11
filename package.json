@@ -57,6 +57,16 @@
       "last 1 safari version"
     ]
   },
+  "babel": {
+    "presets": [
+      "@babel/preset-react",
+      "@babel/preset-env"
+    ],
+    "plugins": [
+      "@babel/plugin-transform-modules-commonjs",
+      "@babel/plugin-transform-react-jsx"
+    ]
+  },
   "devDependencies": {
     "@babel/plugin-transform-react-jsx": "^7.24.7",
     "@babel/preset-env": "^7.24.7",
