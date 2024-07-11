@@ -204,7 +204,7 @@ function App () {
   return (
     <div>
       <SearchBox style={{zIndex:4000}}>
-        <SearchBox.Input id="searchInput" placeholder="Search for a reference number or enter a postcode" style={{zIndex:4000}} />
+        <SearchBox.Input id="searchInput" placeholder="Enter a reference number or postcode" style={{zIndex:4000}} />
         <SearchBox.Button onClick={search} style={{zIndex:4000}} />
       </SearchBox>
       <ErrorText id="errorMsg"></ErrorText>
