@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { MapContainer, TileLayer, Popup, Marker, useMap, GeoJSON } from 'react-leaflet';
-import { Button, SearchBox } from 'govuk-react';
+import { Button, SearchBox, ErrorText } from 'govuk-react';
 import './App.css';
 import './govuk-styles.scss';
 import axios from 'axios';
@@ -76,12 +76,12 @@ const fetchData = async(link) => {
 const fetchPostCode = async(postcode) => {
   try {
     const response = await axios.get('https://api.postcodes.io/postcodes/' + postcode);
-    if (response.status === 200) {
+    if (response.data.status === 200) {
       return [response.data.result.longitude, response.data.result.latitude];
     }
-    else {return 'failed!'}
   } catch (e) {
     console.log(e);
+    return 'failed!'
   }
 }
 
@@ -179,7 +179,8 @@ function App () {
 
   const search = async() => {
     if (!map) {return}
-  
+    
+    document.getElementById("errorMsg").innerHTML = "";
     const searchInput = document.getElementById('searchInput').value;
     
     for (const entry of geojson.features) {
@@ -194,6 +195,7 @@ function App () {
       if (postcodeCoords !== 'failed!') {
         map.flyTo([postcodeCoords[1], postcodeCoords[0]], zoomSize);
       }
+      else {document.getElementById("errorMsg").innerHTML = "Please enter a valid postcode";}
     }
   };
 
@@ -205,7 +207,7 @@ function App () {
         <SearchBox.Input id="searchInput" placeholder="Search for a reference number or enter a postcode" style={{zIndex:4000}} />
         <SearchBox.Button onClick={search} style={{zIndex:4000}} />
       </SearchBox>
-      <br />
+      <ErrorText id="errorMsg"></ErrorText>
       <div style={{ height: 'calc(100% - 30px)', position: 'relative' }}>
         <MapContainer ref={setMap} center={[51.505, -0.09]} zoom={13}>
           <TileLayer
