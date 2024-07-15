@@ -120,7 +120,8 @@ function toGeoJSON(data) {
         "name" : data[iter]["title"],
         "description" : data[iter]["description"],
         "status" : data[iter]["status"],
-        "reference" : data[iter]["reference"]
+        "reference" : data[iter]["reference"],
+        "link" : "https://southwark.bops-staging.services/api/v2/planning_applications/" + data[iter]["reference"]
       },
     });
   }
@@ -161,11 +162,12 @@ function App () {
 
 
   const onEachFeature = (feature, layer) => {
-    if (feature.properties && feature.properties.description && feature.properties.status) {
+    if (feature.properties && feature.properties.description && feature.properties.status && feature.properties.link) {
       layer.bindPopup(`<h3 class="govuk-heading-m" style="font-size: 20px">${feature.properties.name}</h3>
         <p class="govuk-body" style="font-size: 14px">Reference: ${feature.properties.reference}</p>
         <p class="govuk-body" style="font-size: 14px">Planned work: ${feature.properties.description}</p>
-        <p class="govuk-body" style="font-size: 14px">Current status: ${feature.properties.status}</p>`);
+        <p class="govuk-body" style="font-size: 14px">Current status: ${feature.properties.status}</p>
+        <p class="govuk-body" style="font-size: 14px"><Button onClick=fetchData{${feature.properties.link}}>More info</Button></p>`);
     }
     else if (feature.properties && feature.properties.description) {
       layer.bindPopup(`<h3 class="govuk-heading-m" style="font-size: 20px">${feature.properties.name}</h3>
