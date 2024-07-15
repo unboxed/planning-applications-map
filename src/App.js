@@ -185,7 +185,9 @@ function App () {
     // check if input is reference number and focus on it if found
     for (const entry of geojson.features) {
       if (entry.properties.reference === searchInput) {
-        map.flyTo([entry.geometry.coordinates[1], entry.geometry.coordinates[0]], 18);
+        try{map.flyTo([entry.geometry.coordinates[1], entry.geometry.coordinates[0]], 18);}
+        catch(err){document.getElementById("errorMsg").innerHTML = "No valid coordinates attached to this location";}
+        
       }
     }
 
