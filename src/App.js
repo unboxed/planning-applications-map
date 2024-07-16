@@ -85,6 +85,15 @@ const fetchPostCode = async(postcode) => {
   }
 }
 
+const fetchApplicationDocs = async(ref) => {
+  try {
+    const response = await axios.get("https://southwark.bops-staging.services/api/v2/public/planning_applications/" + ref + "/documents");
+    return response.data;
+  } catch (e) {
+    console.log(e);
+  }
+}
+
 // Parsing data acquired from GET request
 function parseJSON (data, iter, applicationData) {
   for (let i = 0; i < Object.keys(data.data).length; i++) {
@@ -120,7 +129,7 @@ function toGeoJSON(data) {
         "name" : data[iter]["title"],
         "description" : data[iter]["description"],
         "status" : data[iter]["status"],
-        "reference" : data[iter]["reference"]
+        "reference" : data[iter]["reference"],
       },
     });
   }
@@ -162,10 +171,19 @@ function App () {
 
   const onEachFeature = (feature, layer) => {
     if (feature.properties && feature.properties.description && feature.properties.status) {
-      layer.bindPopup(`<h3 class="govuk-heading-m" style="font-size: 20px">${feature.properties.name}</h3>
+
+      const div = document.createElement('div');
+      div.innerHTML = `<h3 class="govuk-heading-m" style="font-size: 20px">${feature.properties.name}</h3>
         <p class="govuk-body" style="font-size: 14px">Reference: ${feature.properties.reference}</p>
         <p class="govuk-body" style="font-size: 14px">Planned work: ${feature.properties.description}</p>
-        <p class="govuk-body" style="font-size: 14px">Current status: ${feature.properties.status}</p>`);
+        <p class="govuk-body" style="font-size: 14px">Current status: ${feature.properties.status}</p>`;
+
+      const button = document.createElement('button');
+      button.innerHTML = "More info";
+      button.onclick = async function(){console.log(await fetchApplicationDocs(feature.properties.reference))};
+      div.appendChild(button);
+
+      layer.bindPopup(div);
     }
     else if (feature.properties && feature.properties.description) {
       layer.bindPopup(`<h3 class="govuk-heading-m" style="font-size: 20px">${feature.properties.name}</h3>
