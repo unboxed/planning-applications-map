@@ -107,7 +107,6 @@ function toGeoJSON(data) {
     "type":"FeatureCollection",
     "features":[]
   };
-  
   for (let i=0; i < Object.keys(data).length; i++) {
     let iter = i.toString();
     result.features.push({
@@ -124,9 +123,21 @@ function toGeoJSON(data) {
       },
     });
   }
-  
   return result;
 }
+
+
+//array with every application and the details
+function getPlaces(data) {
+
+  const places = [];
+  for (let i=0; i < Object.keys(data).length; i++) {
+    let iter = i.toString();
+    places.push(data[iter]);
+  }
+  return places;
+}
+
 
 
 
@@ -135,6 +146,7 @@ function App () {
   const [geojson, setGeojson] = useState(null);
   const [loading, setLoading] = useState(true);
   const [map, setMap] = useState(null);
+  let places;
   
   useEffect(() => {
     let applicationData = {};
@@ -154,11 +166,42 @@ function App () {
 
       setGeojson(toGeoJSON(applicationData));
       setLoading(false);
+      places = getPlaces(applicationData);
+
     }
 
     loadData();
   }, []);
 
+
+  //filters by exact name, location or status
+  function filterPlaces(category,condition) {
+    const notStarted = [];
+  for (let i=0; i < places.length; i++) {
+    if (places[i][category] === condition) {notStarted.push(places[i])}
+  }
+  return notStarted
+  }
+
+
+  //NOTE: need to make it work off of refrence, postcode or coordiantes
+  function filterByRadius(x,y,radius) {
+    const valid = []
+    for (let i=0; i < places.length; i++) {
+      const displacementY = places[i]["longitude"] - y
+      const displacementX = places[i]["latitude"] - x
+      const distance = ((displacementX**2)+(displacementY**2))**0.5
+      if (distance <=radius) {
+        valid.push(places[i])
+      }
+    }
+    
+    return valid
+  }
+
+  //displays in log untill place to display on website is made
+  console.log(filterByRadius(50,0,2))
+  console.log(filterPlaces("status","in_assessment"))
 
   const onEachFeature = (feature, layer) => {
     if (feature.properties && feature.properties.description && feature.properties.status) {
@@ -223,6 +266,7 @@ function App () {
         <SearchBox.Input id="searchInput" placeholder="Type here" />
         <SearchBox.Button id="searchBtn" onClick={search} />
       </SearchBox>
+      
       <ErrorText id="errorMsg"></ErrorText>
       <div style={{ height: 'calc(100% - 30px)', position: 'relative' }}>
         <MapContainer ref={setMap} center={[51.505, -0.09]} zoom={13}>
