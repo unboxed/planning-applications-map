@@ -196,26 +196,37 @@ function App () {
 
   const search = async() => {
     if (!map) {return}
-    
     document.getElementById("errorMsg").innerHTML = "";
+    document.getElementById("errorMsg").style.marginTop = "5px";
+    document.getElementById("errorMsg").style.marginBottom = "7px";
     const searchInput = document.getElementById('searchInput').value;
     
     // check if input is reference number and focus on it if found
+    var correctReference = false
     for (const entry of geojson.features) {
       if (entry.properties.reference === searchInput) {
         map.flyTo([entry.geometry.coordinates[1], entry.geometry.coordinates[0]], 18);
+        correctReference = true
       }
     }
-
-    // check if input is postcode then focus on it if valid
-    const postcodeRegex = /^[A-Z]{1,2}[0-9RCHNQ][0-9A-Z]?\s?[0-9][ABD-HJLNP-UW-Z]{2}$|^[A-Z]{2}-?[0-9]{4}$/;
-    if (postcodeRegex.test(searchInput.toUpperCase())){
-      let postcodeCoords = await fetchPostCode(searchInput);
-      if (postcodeCoords !== 'failed!') {
-        map.flyTo([postcodeCoords[1], postcodeCoords[0]], zoomSize);
-      }
-      else {document.getElementById("errorMsg").innerHTML = "Please enter a valid postcode";}
+    // given that input is not a valid reference, checks if input is in reference format and outputs corresponding error if true (Not sure of the exact format so this regex might need to be revised)
+    const referenceRegex = /^[0-9]{2}-?[0-9]{5}-?[0-9A-Z]{4,8}/;
+    if (referenceRegex.test(searchInput.toUpperCase()) && correctReference === false) {
+      {document.getElementById("errorMsg").innerHTML = "Please enter a valid reference";}
     }
+    else{
+      // check if input is postcode then focus on it if valid
+      const postcodeRegex = /^[A-Z0-9]{2,4}\s?[A-Z0-9]{3}$/;
+      if (postcodeRegex.test(searchInput.toUpperCase())){
+        let postcodeCoords = await fetchPostCode(searchInput);
+        if (postcodeCoords !== 'failed!') {
+          map.flyTo([postcodeCoords[1], postcodeCoords[0]], zoomSize);
+        }
+        else {document.getElementById("errorMsg").innerHTML = "Please enter a valid postcode";}
+      }
+      else {document.getElementById("errorMsg").innerHTML = "Please enter a valid postcode or reference";}
+    }
+    
   };
 
   const bindSearchToEnter = () => {
