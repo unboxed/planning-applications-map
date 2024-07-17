@@ -61,17 +61,23 @@ function LocationMarker() {
   );
 }
 
-const fetchData = async(link) => {
+const fetchData = async (link) => {
   try {
     const response = await axios.get(link, {
-      params: { maxresults: pageSize,
-       }
+      params: { maxresults: pageSize },
     });
-    return response.data;
+
+    if (response && response.data) {
+      return response.data;
+    } else {
+      console.error('No data found in response:', response);
+      return null;
+    }
   } catch (e) {
-    console.log(e);
+    console.error('Error fetching data:', e);
+    return null;
   }
-}
+};
 
 const fetchPostCode = async(postcode) => {
   try {
@@ -147,27 +153,38 @@ function App () {
   
   useEffect(() => {
     let applicationData = {};
-
-    const loadData = async() => {
-      // parse first page's data
-      let currentPageData = await fetchData('https://southwark.bops-staging.services/api/v2/public/planning_applications/search');
-      parseJSON(currentPageData, 0, applicationData);
-      let i = 1;
-
-      // iterate through all other pages and parse data
-      while (currentPageData.links.next != null) {
-        currentPageData = await fetchData(currentPageData.links.next);
-        parseJSON(currentPageData, i, applicationData);
-        i++;
+  
+    const loadData = async () => {
+      try {
+        // Parse first page's data
+        let currentPageData = await fetchData('https://southwark.bops-staging.services/api/v2/public/planning_applications/search');
+        if (!currentPageData) {
+          console.error('Failed to load initial data.');
+          return;
+        }
+        parseJSON(currentPageData, 0, applicationData);
+        let i = 1;
+  
+        // Iterate through all other pages and parse data
+        while (currentPageData.links.next != null) {
+          currentPageData = await fetchData(currentPageData.links.next);
+          if (!currentPageData) {
+            console.error('Failed to load subsequent page data.');
+            return;
+          }
+          parseJSON(currentPageData, i, applicationData);
+          i++;
+        }
+  
+        setGeojson(toGeoJSON(applicationData));
+        setLoading(false);
+      } catch (error) {
+        console.error('Error loading data:', error);
       }
-
-      setGeojson(toGeoJSON(applicationData));
-      setLoading(false);
-    }
-
+    };
+  
     loadData();
   }, []);
-
 
   const onEachFeature = (feature, layer) => {
     if (feature.properties && feature.properties.description && feature.properties.status) {
@@ -211,8 +228,8 @@ function App () {
     }
     // given that input is not a valid reference, checks if input is in reference format and outputs corresponding error if true (Not sure of the exact format so this regex might need to be revised)
     const referenceRegex = /^[0-9]{2}-?[0-9]{5}-?[0-9A-Z]{4,8}/;
-    if (referenceRegex.test(searchInput.toUpperCase()) && correctReference === false) {
-      {document.getElementById("errorMsg").innerHTML = "Please enter a valid reference";}
+    if (referenceRegex.test(searchInput.toUpperCase()) && !correctReference) {
+      document.getElementById("errorMsg").innerHTML = "Please enter a valid reference";
     }
     else{
       // check if input is postcode then focus on it if valid
@@ -251,7 +268,7 @@ function App () {
         <SearchBox.Button id="searchBtn" onClick={search} />
       </SearchBox>
       <ErrorText id="errorMsg"></ErrorText>
-      <div style={{ height: 'calc(100% - 30px)', position: 'relative' }}>
+      <div data-testid="mapContainer" style={{ height: 'calc(100% - 30px)', position: 'relative' }} >
         <MapContainer ref={setMap} center={[51.505, -0.09]} zoom={13}>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
