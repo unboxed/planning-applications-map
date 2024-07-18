@@ -145,7 +145,7 @@ function App () {
         <p class="govuk-body" style="font-size: 14px">Reference: ${feature.properties.reference}</p>
         <p class="govuk-body" style="font-size: 14px">Planned work: ${feature.properties.description}</p>
         <p class="govuk-body" style="font-size: 14px">Current status: ${feature.properties.status}</p>
-        <a href="${feature.properties.publicUrl}" target="_blank">More info</a>`;
+        <a class="govuk-link" style="font-size: 14px" href="${feature.properties.publicUrl}" target="_blank">More info</a>`;
       layer.bindPopup(div);
     }
     else if (feature.properties && feature.properties.description && feature.properties.status) {
