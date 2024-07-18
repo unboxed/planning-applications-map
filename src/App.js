@@ -4,7 +4,7 @@ import { Button, SearchBox, ErrorText, HintText,Select,Paragraph } from 'govuk-r
 import './App.css';
 import './govuk-styles.scss';
 import axios from 'axios';
-import { DivIcon } from 'leaflet';
+import { DivIcon, latLng } from 'leaflet';
 import { getValue } from '@testing-library/user-event/dist/utils';
 // import data from './london-spots.json';
 let pageSize = 50;
@@ -173,10 +173,13 @@ function App () {
     //There is an approximation as latitude and longitude have slightly dfferent magnitudes when converting from km
     radius = radius/110.7
     //TEMPORARY
-    const location = [0,0]
+    const xCoord = map.getCenter()["lat"]
+    const yCoord = map.getCenter()["lng"]
+
+    console.log(xCoord,yCoord)
     
     const valid = []
-    function findValid(xCoord,yCoord,radius){
+
       for (let i=0; i < places.length; i++) {
         const displacementY = places[i]["longitude"] - yCoord
         const displacementX = places[i]["latitude"] - xCoord
@@ -186,37 +189,7 @@ function App () {
         }
       }
       displayResult(valid)
-    }
-    // check if input is postcode then focus on it if valid
-    const postcodeRegex = /^[A-Z]{1,2}[0-9RCHNQ][0-9A-Z]?\s?[0-9][ABD-HJLNP-UW-Z]{2}$|^[A-Z]{2}-?[0-9]{4}$/;
-      if (location.length === 2){
-        const xCoord = location[0]
-        const yCoord = location[1]
-        return findValid(xCoord,yCoord,radius)
-      }
-      try{
-        if (postcodeRegex.test(location.toUpperCase())){
-          let postcodeCoords = fetchPostCode(location);
-          if (postcodeCoords !== 'failed!') {
-            const xCoord = postcodeCoords[1]
-            const yCoord = postcodeCoords[0]
-            return findValid(xCoord,yCoord,radius)
-          }
-          else {document.getElementById("errorMsg").innerHTML = "Please enter a valid postcode";}
-        } 
-      } 
-      catch(err){console.log("Couldn't make uppercase")}
-      // check if input is reference number and focus on it if found
-      
-        for (const entry of geojson.features) {
-          if (entry.properties.reference === location) {
-            try{const xCoord = entry.geometry.coordinates[1]
-                const yCoord = entry.geometry.coordinates[0]
-                return findValid(xCoord,yCoord,radius)
-              }
-            catch(err){document.getElementById("errorMsg").innerHTML = "No valid coordinates attached to this location";}
-          }   
-      }
+    
     }
     
   
@@ -331,7 +304,7 @@ function App () {
       </SearchBox>
       <br></br>
       
-      <div class="filterdropdown"> 
+      <div class="filterdropdown" style={{display:"none"}}> 
       <Select
         style ={{position: "relative",width: 500,left:710, top:25,zIndex:5000}}
         input={{
@@ -357,8 +330,8 @@ function App () {
         <option value="returned">Returned</option> 
       </Select>
       </div>
-      <div class="filterdropdown">
-      <SearchBox class="filterdropdown" style={{position:"relative", left:710,top:25,zIndex:5000}}>
+      <div class="filterdropdown" style={{display:"none"}}>
+      <SearchBox  style={{position:"relative", left:710,top:25,zIndex:5000, paddingBottom:15}}>
         <SearchBox.Input id = "searchInputRadius" placeholder="Filter by radius (km)" style={{position:"relative" ,width: 204, top: 2}}/>
         <SearchBox.Button id="searchBtnRadius" style={{position:"relative",top:2}} onClick={searchForRadius}/>
       </SearchBox>
@@ -367,7 +340,7 @@ function App () {
       
       <ErrorText id="errorMsg"></ErrorText>
       <div style={{ height: 'calc(100% - 30px)', position: 'relative' }}>
-        <MapContainer ref={setMap} center={[51.505, -0.09]} zoom={13}>
+        <MapContainer style={{top:10}} ref={setMap} center={[51.505, -0.09]} zoom={13}>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
