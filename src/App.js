@@ -165,16 +165,15 @@ function App () {
     const searchInput = document.getElementById('searchInput').value;
     
     // check if input is reference number and focus on it if found
-    var correctReference = false
     for (const entry of geojson.features) {
       if (entry.properties.reference === searchInput) {
         map.flyTo([entry.geometry.coordinates[1], entry.geometry.coordinates[0]], 18);
-        correctReference = true
+        return;
       }
     }
     // given that input is not a valid reference, checks if input is in reference format and outputs corresponding error if true (Not sure of the exact format so this regex might need to be revised)
     const referenceRegex = /^[0-9]{2}-?[0-9]{5}-?[0-9A-Z]{4,8}/;
-    if (referenceRegex.test(searchInput.toUpperCase()) && !correctReference) {
+    if (referenceRegex.test(searchInput.toUpperCase())) {
       document.getElementById("errorMsg").innerHTML = "Please enter a valid reference";
     }
     else{
@@ -189,7 +188,6 @@ function App () {
       }
       else {document.getElementById("errorMsg").innerHTML = "Please enter a valid postcode or reference";}
     }
-    
   };
 
   const bindSearchToEnter = () => {
