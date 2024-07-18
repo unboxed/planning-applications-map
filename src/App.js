@@ -40,14 +40,14 @@ const fetchPostCode = async(postcode) => {
   }
 }
 
-const fetchApplicationDocs = async(ref) => {
-  try {
-    const response = await axios.get(apiUrl + ref + "/documents");
-    return response.data;
-  } catch (e) {
-    console.log(e);
-  }
-}
+// const fetchApplicationDocs = async(ref) => {
+//   try {
+//     const response = await axios.get(apiUrl + ref + "/documents");
+//     return response.data;
+//   } catch (e) {
+//     console.log(e);
+//   }
+// }
 
 // Parsing data acquired from GET request
 function parseJSON (data, iter, applicationData) {
@@ -60,6 +60,10 @@ function parseJSON (data, iter, applicationData) {
       "status" : currentApplication["application"]["status"],
       "reference" : currentApplication["application"]["reference"],
       "description" : currentApplication["proposal"]["description"],
+    }
+    if (currentApplication["application"].hasOwnProperty("consultation")) {
+      var urlEntry = {"publicUrl": currentApplication["application"]["consultation"]["publicUrl"]};
+      Object.assign(applicationData[(i + iter * pageSize).toString()], urlEntry);
     }
   }
 }
@@ -85,6 +89,7 @@ function toGeoJSON(data) {
         "description" : data[iter]["description"],
         "status" : data[iter]["status"],
         "reference" : data[iter]["reference"],
+        "publicUrl" : data[iter]["publicUrl"],
       },
     });
   }
@@ -133,7 +138,17 @@ function App () {
   }, []);
 
   const onEachFeature = (feature, layer) => {
-    if (feature.properties && feature.properties.description && feature.properties.status) {
+    if (feature.properties && feature.properties.description && feature.properties.status && feature.properties.publicUrl) {
+
+      const div = document.createElement('div');
+      div.innerHTML = `<h3 class="govuk-heading-m" style="font-size: 20px">${feature.properties.name}</h3>
+        <p class="govuk-body" style="font-size: 14px">Reference: ${feature.properties.reference}</p>
+        <p class="govuk-body" style="font-size: 14px">Planned work: ${feature.properties.description}</p>
+        <p class="govuk-body" style="font-size: 14px">Current status: ${feature.properties.status}</p>
+        <a href="${feature.properties.publicUrl}" target="_blank">More info</a>`;
+      layer.bindPopup(div);
+    }
+    else if (feature.properties && feature.properties.description && feature.properties.status) {
 
       const div = document.createElement('div');
       div.innerHTML = `<h3 class="govuk-heading-m" style="font-size: 20px">${feature.properties.name}</h3>
@@ -141,10 +156,10 @@ function App () {
         <p class="govuk-body" style="font-size: 14px">Planned work: ${feature.properties.description}</p>
         <p class="govuk-body" style="font-size: 14px">Current status: ${feature.properties.status}</p>`;
 
-      const button = document.createElement('button');
-      button.innerHTML = "More info";
-      button.onclick = async function(){console.log(await fetchApplicationDocs(feature.properties.reference))};
-      div.appendChild(button);
+      // const button = document.createElement('button');
+      // button.innerHTML = "More info";
+      // button.onclick = async function(){console.log(await fetchApplicationDocs(feature.properties.reference))};
+      // div.appendChild(button);
 
       layer.bindPopup(div);
     }
