@@ -13,6 +13,7 @@ jest.mock('react-leaflet', () => {
     MapContainer: jest.fn(({ children }) => <div>{children}</div>),
     TileLayer: jest.fn(() => <div>TileLayer</div>),
     GeoJSON: jest.fn(() => <div>GeoJSON</div>),
+    LocationMarker: jest.fn(() => <div>LocationMarker</div>),
     Marker: jest.fn(() => <div>Marker</div>),
     Popup: jest.fn(() => <div>Popup</div>),
   };
@@ -50,8 +51,13 @@ test('Map renders', async() => {
   });
 
   render(<App />);
+
+  await waitFor(() => {
+    expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+  });
+
   await waitFor(() => {
     const mapElement = screen.queryByTestId('mapContainer');
-    expect(mapElement).toBeDefined();
+    expect(mapElement).toBeInTheDocument();
   });
 })
