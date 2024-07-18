@@ -1,65 +1,14 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { MapContainer, TileLayer, Popup, Marker, useMap, GeoJSON } from 'react-leaflet';
-import { Button, SearchBox, ErrorText, HintText } from 'govuk-react';
+import React, { useState, useEffect } from 'react';
+import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
+import { SearchBox, ErrorText, HintText } from 'govuk-react';
 import './App.css';
 import './govuk-styles.scss';
 import axios from 'axios';
-import { DivIcon } from 'leaflet';
+import LocationMarker from './LocationMarker';
 // import data from './london-spots.json';
 let pageSize = 50;
 let zoomSize = 16;
-
-const createCustomIcon = (className) => new DivIcon({
-  className: '',
-  html: `<div class="${className}"></div>`,
-  iconSize: [25, 25],
-  iconAnchor: [12, 25],
-  popupAnchor: [0, -25],
-});
-
-// Current location finder
-function LocationMarker() {
-  const [position, setPosition] = useState(null);
-  const [tracking, setTracking] = useState(false);
-  const map = useMap();
-  
-  const onLocationFound = useCallback((e) => {
-    setPosition(e.latlng);
-    map.flyTo(e.latlng, zoomSize);
-  }, [map]);
-  
-  const toggleTracking = useCallback(() => {
-    if (tracking) {
-      setTracking(false);
-      map.off('locationfound', onLocationFound);
-      setPosition(null);
-    } else {
-      setTracking(true);
-      map.on('locationfound', onLocationFound);
-      map.locate();
-    }
-  }, [tracking, map, onLocationFound]);
-  
-  //cleanup
-  useEffect(() => {
-    return () => {
-      map.off('locationfound', onLocationFound);
-    };
-  }, [map, onLocationFound]);
-  
-  return (
-    <>
-      <Button onClick={toggleTracking} style={{ position: 'absolute', top:'93.5%', zIndex: 4000, width:'185px' }}>
-        {tracking ? 'Hide My Location' : 'Show My Location'}
-      </Button>
-      {position && (
-        <Marker icon={createCustomIcon('my-location')} position={position}>
-          <Popup>You are here</Popup>
-        </Marker>
-      )}
-    </>
-  );
-}
+let apiUrl = "https://southwark.bops-staging.services/api/v2/public/planning_applications/";
 
 const fetchData = async (link) => {
   try {
@@ -93,7 +42,7 @@ const fetchPostCode = async(postcode) => {
 
 const fetchApplicationDocs = async(ref) => {
   try {
-    const response = await axios.get("https://southwark.bops-staging.services/api/v2/public/planning_applications/" + ref + "/documents");
+    const response = await axios.get(apiUrl + ref + "/documents");
     return response.data;
   } catch (e) {
     console.log(e);
@@ -139,11 +88,8 @@ function toGeoJSON(data) {
       },
     });
   }
-  
   return result;
 }
-
-
 
 function App () {
 
@@ -157,7 +103,7 @@ function App () {
     const loadData = async () => {
       try {
         // Parse first page's data
-        let currentPageData = await fetchData('https://southwark.bops-staging.services/api/v2/public/planning_applications/search');
+        let currentPageData = await fetchData(apiUrl + 'search');
         if (!currentPageData) {
           console.error('Failed to load initial data.');
           return;

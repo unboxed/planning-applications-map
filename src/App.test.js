@@ -13,10 +13,13 @@ jest.mock('react-leaflet', () => {
     MapContainer: jest.fn(({ children }) => <div>{children}</div>),
     TileLayer: jest.fn(() => <div>TileLayer</div>),
     GeoJSON: jest.fn(() => <div>GeoJSON</div>),
-    LocationMarker: jest.fn(() => <div>LocationMarker</div>),
     Marker: jest.fn(() => <div>Marker</div>),
     Popup: jest.fn(() => <div>Popup</div>),
   };
+});
+
+jest.mock('./LocationMarker', () => {
+  return jest.fn(() => <div>Mocked LocationMarker</div>);
 });
 
 test('Loading... is shown on site', () => {
