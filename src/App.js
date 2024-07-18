@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { MapContainer, TileLayer, Popup, Marker, useMap, GeoJSON } from 'react-leaflet';
-import { Button, SearchBox, ErrorText, HintText,Select,Paragraph } from 'govuk-react';
+import { Button, SearchBox, ErrorText, HintText, Select, Paragraph, Heading, ListItem } from 'govuk-react';
 import './App.css';
 import './govuk-styles.scss';
 import axios from 'axios';
@@ -164,32 +164,41 @@ function App () {
     loadData();
   }, []);
 
-  function displayResult(result){
-    console.log(result)
+  function initFilterResults(){
+    document.getElementById("filterresults").innerHTML=null
+    var item = document.createElement("b")
+    item.innerHTML = "Filter Results:"
+    document.getElementById("filterresults").appendChild(item)
+    document.getElementById("filterresults").appendChild(document.createElement("br"))
+    var box = document.createElement("div")
+    box.style.overflow = "auto"
+    box.style.maxHeight = "574px"
+    box.style.borderStyle = "solid"
+    box.innerHTML = ""
+    document.getElementById("filterresults").appendChild(box)
   }
+
   
   //either postocde or reference as a string or an array of x and y coordiantes
   function filterByRadius(radius) {
     //There is an approximation as latitude and longitude have slightly dfferent magnitudes when converting from km
     radius = radius/110.7
-    //TEMPORARY
     const xCoord = map.getCenter()["lat"]
     const yCoord = map.getCenter()["lng"]
-
-    console.log(xCoord,yCoord)
     
-    const valid = []
+    initFilterResults()
 
       for (let i=0; i < places.length; i++) {
         const displacementY = places[i]["longitude"] - yCoord
         const displacementX = places[i]["latitude"] - xCoord
         const distance = ((displacementX**2)+(displacementY**2))**0.5
         if (distance <=radius) {
-          valid.push(places[i]["title"])
+          var box = document.getElementById("filterresults").lastChild
+          var content = "• "+places[i]["title"]+"<br></br"
+          box.innerHTML = box.innerHTML+content
         }
       }
-      displayResult(valid)
-    
+      document.getElementById("filterresults").style.display = "block"
     }
     
   
@@ -262,6 +271,8 @@ function App () {
     
   };
 
+  
+
   const bindSearchToEnter = () => {
     var input = document.getElementById("searchInput");
     if (input === null) { return }
@@ -284,12 +295,6 @@ function App () {
 
   bindSearchToEnter();
   bindSearchToEnterRadius();
-
-  //displays in log untill place to display on website is made
-  //console.log(filterByRadius(places,"23-00453-LDCP",5))
-  //console.log(filterByRadius(places,[51,0],100))
-  console.log(places)
-
   
 
   if (loading) {return (<div>Loading...</div>);}
@@ -311,11 +316,16 @@ function App () {
           id: 'selectionid',
           name: 'filterSelect',
           onChange: function filterPlaces() {
-            const meetCond = [];
+            initFilterResults()
           for (let i=0; i < places.length; i++) {
-            if (places[i]["status"] === document.getElementById("selectionid").value) {meetCond.push(places[i]["title"])}
+            if (places[i]["status"] === document.getElementById("selectionid").value) {
+              var box = document.getElementById("filterresults").lastChild
+              var content = "• "+places[i]["title"]+"<br></br"
+              box.innerHTML = box.innerHTML+content
+              
+            }
           }
-          console.log(meetCond)
+          document.getElementById("filterresults").style.display = "block"
           }
         }}
         
@@ -340,14 +350,17 @@ function App () {
       
       <ErrorText id="errorMsg"></ErrorText>
       <div style={{ height: 'calc(100% - 30px)', position: 'relative' }}>
-        <MapContainer style={{top:10}} ref={setMap} center={[51.505, -0.09]} zoom={13}>
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          <GeoJSON data={geojson} onEachFeature={onEachFeature} />
-          <LocationMarker />
-        </MapContainer>
+          <MapContainer style={{top:10}} ref={setMap} center={[51.505, -0.09]} zoom={13}>
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <GeoJSON data={geojson} onEachFeature={onEachFeature} />
+            <LocationMarker />
+          </MapContainer>
+          <div id="filterresults" style={{position:"absolute",left:965,top:10,width:300,display:"none"}}>
+          
+          </div>
       </div>
     </div>
   );
