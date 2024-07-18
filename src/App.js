@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { MapContainer, TileLayer, Popup, Marker, useMap, GeoJSON } from 'react-leaflet';
-import { Button, SearchBox, ErrorText, HintText } from 'govuk-react';
+import { Button, SearchBox, ErrorText, HintText,Select,Paragraph } from 'govuk-react';
 import './App.css';
 import './govuk-styles.scss';
 import axios from 'axios';
 import { DivIcon } from 'leaflet';
+import { getValue } from '@testing-library/user-event/dist/utils';
 // import data from './london-spots.json';
 let pageSize = 50;
 let zoomSize = 16;
+
+const places = []
 
 const createCustomIcon = (className) => new DivIcon({
   className: '',
@@ -49,7 +52,7 @@ function LocationMarker() {
   
   return (
     <>
-      <Button onClick={toggleTracking} style={{ position: 'absolute', top:'93.5%', zIndex: 4000, width:'185px' }}>
+      <Button onClick={toggleTracking} style={{ position: 'absolute', top:'93.5%', left: 0, zIndex: 4000, width:'185px' }}>
         {tracking ? 'Hide My Location' : 'Show My Location'}
       </Button>
       {position && (
@@ -66,6 +69,7 @@ const fetchData = async(link) => {
     const response = await axios.get(link, {
       params: { maxresults: pageSize,
        }
+       
     });
     return response.data;
   } catch (e) {
@@ -107,8 +111,10 @@ function toGeoJSON(data) {
     "type":"FeatureCollection",
     "features":[]
   };
+  
   for (let i=0; i < Object.keys(data).length; i++) {
     let iter = i.toString();
+    places.push(data[iter]);
     result.features.push({
       "type":"Feature",
       "geometry":{
@@ -127,26 +133,13 @@ function toGeoJSON(data) {
 }
 
 
-//array with every application and the details
-function getPlaces(data) {
-
-  const places = [];
-  for (let i=0; i < Object.keys(data).length; i++) {
-    let iter = i.toString();
-    places.push(data[iter]);
-  }
-  return places;
-}
-
-
-
 
 function App () {
 
   const [geojson, setGeojson] = useState(null);
   const [loading, setLoading] = useState(true);
   const [map, setMap] = useState(null);
-  let places;
+
   
   useEffect(() => {
     let applicationData = {};
@@ -166,42 +159,70 @@ function App () {
 
       setGeojson(toGeoJSON(applicationData));
       setLoading(false);
-      places = getPlaces(applicationData);
-
     }
 
     loadData();
   }, []);
 
-
-  //filters by exact name, location or status
-  function filterPlaces(category,condition) {
-    const notStarted = [];
-  for (let i=0; i < places.length; i++) {
-    if (places[i][category] === condition) {notStarted.push(places[i])}
+  function displayResult(result){
+    console.log(result)
   }
-  return notStarted
-  }
-
-
-  //NOTE: need to make it work off of refrence, postcode or coordiantes
-  function filterByRadius(x,y,radius) {
+  
+  //either postocde or reference as a string or an array of x and y coordiantes
+  function filterByRadius(radius) {
+    //There is an approximation as latitude and longitude have slightly dfferent magnitudes when converting from km
+    radius = radius/110.7
+    //TEMPORARY
+    const location = [0,0]
+    
     const valid = []
-    for (let i=0; i < places.length; i++) {
-      const displacementY = places[i]["longitude"] - y
-      const displacementX = places[i]["latitude"] - x
-      const distance = ((displacementX**2)+(displacementY**2))**0.5
-      if (distance <=radius) {
-        valid.push(places[i])
+    function findValid(xCoord,yCoord,radius){
+      for (let i=0; i < places.length; i++) {
+        const displacementY = places[i]["longitude"] - yCoord
+        const displacementX = places[i]["latitude"] - xCoord
+        const distance = ((displacementX**2)+(displacementY**2))**0.5
+        if (distance <=radius) {
+          valid.push(places[i]["title"])
+        }
+      }
+      displayResult(valid)
+    }
+    // check if input is postcode then focus on it if valid
+    const postcodeRegex = /^[A-Z]{1,2}[0-9RCHNQ][0-9A-Z]?\s?[0-9][ABD-HJLNP-UW-Z]{2}$|^[A-Z]{2}-?[0-9]{4}$/;
+      if (location.length === 2){
+        const xCoord = location[0]
+        const yCoord = location[1]
+        return findValid(xCoord,yCoord,radius)
+      }
+      try{
+        if (postcodeRegex.test(location.toUpperCase())){
+          let postcodeCoords = fetchPostCode(location);
+          if (postcodeCoords !== 'failed!') {
+            const xCoord = postcodeCoords[1]
+            const yCoord = postcodeCoords[0]
+            return findValid(xCoord,yCoord,radius)
+          }
+          else {document.getElementById("errorMsg").innerHTML = "Please enter a valid postcode";}
+        } 
+      } 
+      catch(err){console.log("Couldn't make uppercase")}
+      // check if input is reference number and focus on it if found
+      
+        for (const entry of geojson.features) {
+          if (entry.properties.reference === location) {
+            try{const xCoord = entry.geometry.coordinates[1]
+                const yCoord = entry.geometry.coordinates[0]
+                return findValid(xCoord,yCoord,radius)
+              }
+            catch(err){document.getElementById("errorMsg").innerHTML = "No valid coordinates attached to this location";}
+          }   
       }
     }
     
-    return valid
-  }
+  
+  
+  
 
-  //displays in log untill place to display on website is made
-  console.log(filterByRadius(50,0,2))
-  console.log(filterPlaces("status","in_assessment"))
 
   const onEachFeature = (feature, layer) => {
     if (feature.properties && feature.properties.description && feature.properties.status) {
@@ -245,6 +266,29 @@ function App () {
     }
   };
 
+  const searchForRadius = async() => {
+    if (!map) {return}
+    
+    document.getElementById("errorMsg").innerHTML = "";
+    const searchInputRadius = document.getElementById('searchInputRadius').value;
+    
+    filterByRadius(searchInputRadius)
+  };
+
+  const toggleShow = async() => {
+      if (!map) {return}
+      document.getElementById("errorMsg").innerHTML = "";
+      var x = document.getElementsByClassName("filterdropdown");
+      for (let i=0; i < x.length; i++){
+        if (x[i].style.display === "none") {
+          x[i].style.display = "block";
+        } else {
+          x[i].style.display = "none";
+        }
+      }
+    
+  };
+
   const bindSearchToEnter = () => {
     var input = document.getElementById("searchInput");
     if (input === null) { return }
@@ -255,7 +299,25 @@ function App () {
     });
   }
 
+  const bindSearchToEnterRadius = () => {
+    var input = document.getElementById("searchInputRadius");
+    if (input === null) { return }
+    input.addEventListener("keypress", function (event) {
+      if (event.key === "Enter") {
+        document.getElementById("searchBtnRadius").click();
+      }
+    });
+  }
+
   bindSearchToEnter();
+  bindSearchToEnterRadius();
+
+  //displays in log untill place to display on website is made
+  //console.log(filterByRadius(places,"23-00453-LDCP",5))
+  //console.log(filterByRadius(places,[51,0],100))
+  console.log(places)
+
+  
 
   if (loading) {return (<div>Loading...</div>);}
 
@@ -265,7 +327,43 @@ function App () {
       <SearchBox>
         <SearchBox.Input id="searchInput" placeholder="Type here" />
         <SearchBox.Button id="searchBtn" onClick={search} />
+        <Button id="filterbutton" style={{position: "absolute", right:416, top: 291,height: 38, width: 80}} onClick={toggleShow}>Filter</Button>
       </SearchBox>
+      <br></br>
+      
+      <div class="filterdropdown"> 
+      <Select
+        style ={{position: "relative",width: 500,left:710, top:25,zIndex:5000}}
+        input={{
+          id: 'selectionid',
+          name: 'filterSelect',
+          onChange: function filterPlaces() {
+            const meetCond = [];
+          for (let i=0; i < places.length; i++) {
+            if (places[i]["status"] === document.getElementById("selectionid").value) {meetCond.push(places[i]["title"])}
+          }
+          console.log(meetCond)
+          }
+        }}
+        
+      >
+        <option value="0" selected = "selected">Filter by Status</option>
+        <option value="not_started">Not Started</option>
+        <option value="in_assessment">In Assessment</option>
+        <option value="assessment_in_progress">Assessment in Progress</option>
+        <option value="awaiting_determination">Awaiting Determination</option>
+        <option value="in_committee">In Committee</option>
+        <option value="determined">Determined</option>
+        <option value="returned">Returned</option> 
+      </Select>
+      </div>
+      <div class="filterdropdown">
+      <SearchBox class="filterdropdown" style={{position:"relative", left:710,top:25,zIndex:5000}}>
+        <SearchBox.Input id = "searchInputRadius" placeholder="Filter by radius (km)" style={{position:"relative" ,width: 204, top: 2}}/>
+        <SearchBox.Button id="searchBtnRadius" style={{position:"relative",top:2}} onClick={searchForRadius}/>
+      </SearchBox>
+      </div>
+      
       
       <ErrorText id="errorMsg"></ErrorText>
       <div style={{ height: 'calc(100% - 30px)', position: 'relative' }}>
