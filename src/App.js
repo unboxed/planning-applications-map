@@ -92,7 +92,7 @@ function parseJSON (data, iter, applicationData) {
   let startDate = "N/A";
     for (let i = 0; i < Object.keys(data.data).length; i++) {
       var currentApplication = data.data[i.toString()];
-      if (Object.keys(currentApplication["application"]).length == 10){
+      if (Object.keys(currentApplication["application"]).length == 10){ // ALEX NOTE: This needs to be changed so it actually works. When i = 11 start and end dates are both null. Not just i = 11 but that is the first instance.
       endDate = currentApplication["application"]["consultation"]["endDate"];
       startDate = currentApplication["application"]["consultation"]["startDate"];}
       parsedData[(i + iter * pageSize).toString()] = {
@@ -149,6 +149,7 @@ function generateNumbers(N){
 
 function loadTable(applicationData, indexes){
   const tableSize = 25;
+  // ALEX NOTE: indexValues is an attempt to add sorting functionality. IndexValues is an array which stores the index values of the dictionary correspoding to the ascending order of start dates. 
   let indexValues = indexes || generateNumbers(tableSize);
   // Two customisable arrays determining the collumn values of the table (dataHeaders refers to the location of the data in the applicationData dictionary)
   const dataHeaders = ["title", "startDate", "endDate", "status", "reference"]
@@ -170,9 +171,11 @@ function loadTable(applicationData, indexes){
     }
     tableHTML += '</tr>';
   }
+  // ALEX NOTE: Because of this line, this function needs to be called after loading is set to false
   document.getElementById("mapTable").innerHTML = tableHTML;
 }
 // function aims to create an array of indexes correspoding to the ascending order of dates
+// ALEX NOTE: This function doesn't work
 function latestDate(applicationData){
     // center allows for functionality based on distance from current centre of the map (probably should be changed to user's location)
     let dumpDict = []
@@ -213,7 +216,6 @@ function App () {
       setGeojson(toGeoJSON(parsedData));
       setLoading(false);
       loadTable(applicationData)
-
     }
     
   loadData();
