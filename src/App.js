@@ -168,12 +168,14 @@ function App () {
     document.getElementById("filterresults").innerHTML=null
     var item = document.createElement("b")
     item.innerHTML = "Filter Results:"
+    item.style.textDecoration = "underline"
+    item.id = "filtertitle"
+    document.getElementById("filterresults").style.border = "solid"
     document.getElementById("filterresults").appendChild(item)
-    document.getElementById("filterresults").appendChild(document.createElement("br"))
+    document.getElementById("filterresults").appendChild(document.createElement("p"))
     var box = document.createElement("div")
     box.style.overflow = "auto"
     box.style.maxHeight = "574px"
-    box.style.borderStyle = "solid"
     box.innerHTML = ""
     document.getElementById("filterresults").appendChild(box)
   }
@@ -199,6 +201,7 @@ function App () {
         }
       }
       document.getElementById("filterresults").style.display = "block"
+      document.getElementById("filterExitButton").style.display = "block"
     }
     
   
@@ -261,15 +264,31 @@ function App () {
       if (!map) {return}
       document.getElementById("errorMsg").innerHTML = "";
       var x = document.getElementsByClassName("filterdropdown");
+      var y = document.getElementById("filterresults")
+      var z = document.getElementById("filterExitButton")
       for (let i=0; i < x.length; i++){
         if (x[i].style.display === "none") {
           x[i].style.display = "block";
+          y.style.display = "block"
+          if (document.getElementById("filtertitle") != undefined) {
+            z.style.display = "block"
+          }
         } else {
           x[i].style.display = "none";
+          y.style.display = "none"
+          z.style.display="none"
         }
       }
-    
   };
+
+  const hideFilterResults = async() => {
+    if (!map) {return}
+    document.getElementById("errorMsg").innerHTML = "";
+    var y = document.getElementById("filterresults")
+    var z = document.getElementById("filterExitButton")
+        y.style.display = "none"
+        z.style.display="none"
+};
 
   
 
@@ -305,13 +324,13 @@ function App () {
       <SearchBox>
         <SearchBox.Input id="searchInput" placeholder="Type here" />
         <SearchBox.Button id="searchBtn" onClick={search} />
-        <Button id="filterbutton" style={{position: "absolute", right:416, top: 291,height: 38, width: 80}} onClick={toggleShow}>Filter</Button>
+        <Button id="filterbutton" buttonColour="#1d70b8" style={{position: "absolute", right:400, top: 251,height: 38, width: 80}} onClick={toggleShow}>Filter</Button>
       </SearchBox>
       <br></br>
       
       <div class="filterdropdown" style={{display:"none"}}> 
       <Select
-        style ={{position: "relative",width: 500,left:710, top:25,zIndex:5000}}
+        style ={{position: "relative",width: 500,left:960, top:-19,zIndex:5000}}
         input={{
           id: 'selectionid',
           name: 'filterSelect',
@@ -322,10 +341,10 @@ function App () {
               var box = document.getElementById("filterresults").lastChild
               var content = "• "+places[i]["title"]+"<br></br"
               box.innerHTML = box.innerHTML+content
-              
             }
           }
           document.getElementById("filterresults").style.display = "block"
+          document.getElementById("filterExitButton").style.display = "block"
           }
         }}
         
@@ -341,7 +360,7 @@ function App () {
       </Select>
       </div>
       <div class="filterdropdown" style={{display:"none"}}>
-      <SearchBox  style={{position:"relative", left:710,top:25,zIndex:5000, paddingBottom:15}}>
+      <SearchBox  style={{position:"relative", left:960,top:-19,zIndex:5000, paddingBottom:15}}>
         <SearchBox.Input id = "searchInputRadius" placeholder="Filter by radius (km)" style={{position:"relative" ,width: 204, top: 2}}/>
         <SearchBox.Button id="searchBtnRadius" style={{position:"relative",top:2}} onClick={searchForRadius}/>
       </SearchBox>
@@ -358,8 +377,10 @@ function App () {
             <GeoJSON data={geojson} onEachFeature={onEachFeature} />
             <LocationMarker />
           </MapContainer>
-          <div id="filterresults" style={{position:"absolute",left:965,top:10,width:300,display:"none"}}>
-          
+          <div id="filterresults" style={{position:"absolute",left:960,top:-45,width:300,zIndex:9001,display:"none"}}>
+          </div>
+          <div id="filterExitButton" style={{display:"none"}} onClick={hideFilterResults}>
+            <Button id="exitbutton" buttonColour="#d4351c" style={{position:"absolute",left: 1239, top:-42, height:10, width:10,zIndex:9002}}></Button>
           </div>
       </div>
     </div>
