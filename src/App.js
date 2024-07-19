@@ -175,7 +175,7 @@ function App () {
     document.getElementById("filterresults").appendChild(document.createElement("p"))
     var box = document.createElement("div")
     box.style.overflow = "auto"
-    box.style.maxHeight = "574px"
+    box.style.maxHeight = "615px"
     box.innerHTML = ""
     document.getElementById("filterresults").appendChild(box)
   }
@@ -204,8 +204,14 @@ function App () {
       document.getElementById("filterExitButton").style.display = "block"
     }
     
-  
-  
+  var isActive = false
+  function toggleActive(){
+    if (isActive === false){
+      isActive = true
+    }else{
+      isActive = false
+    }
+  }
   
 
 
@@ -269,7 +275,11 @@ function App () {
       for (let i=0; i < x.length; i++){
         if (x[i].style.display === "none") {
           x[i].style.display = "block";
-          y.style.display = "block"
+          console.log(isActive)
+          if (isActive === true){
+            y.style.display = "block"
+          }
+          toggleActive()
           if (document.getElementById("filtertitle") != undefined) {
             z.style.display = "block"
           }
@@ -368,7 +378,7 @@ function App () {
       
       
       <ErrorText id="errorMsg"></ErrorText>
-      <div style={{ height: 'calc(100% - 30px)', position: 'relative' }}>
+      <div style={{ height: 'calc(100% - 30px)', position: 'relative'}}>
           <MapContainer style={{top:10}} ref={setMap} center={[51.505, -0.09]} zoom={13}>
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
