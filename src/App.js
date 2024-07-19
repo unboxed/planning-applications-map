@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { MapContainer, TileLayer, Popup, Marker, useMap, GeoJSON } from 'react-leaflet';
-import { Button, SearchBox, ErrorText, HintText } from 'govuk-react';
+import { Button, SearchBox, ErrorText, HintText, Table} from 'govuk-react';
 import './App.css';
 import './govuk-styles.scss';
 import axios from 'axios';
-import { DivIcon } from 'leaflet';
+import { DivIcon, Circle} from 'leaflet';
 // import data from './london-spots.json';
 let pageSize = 50;
 let zoomSize = 16;
@@ -87,18 +87,29 @@ const fetchPostCode = async(postcode) => {
 
 // Parsing data acquired from GET request
 function parseJSON (data, iter, applicationData) {
-  for (let i = 0; i < Object.keys(data.data).length; i++) {
-    var currentApplication = data.data[i.toString()];
-    applicationData[(i + iter * pageSize).toString()] = {
-      "title" : currentApplication["property"]["address"]["singleLine"],
-      "latitude" : currentApplication["property"]["address"]["latitude"],
-      "longitude" : currentApplication["property"]["address"]["longitude"],
-      "status" : currentApplication["application"]["status"],
-      "reference" : currentApplication["application"]["reference"],
-      "description" : currentApplication["proposal"]["description"],
+  let parsedData = applicationData || {};
+  let endDate = "N/A";
+  let startDate = "N/A";
+    for (let i = 0; i < Object.keys(data.data).length; i++) {
+      var currentApplication = data.data[i.toString()];
+      if (Object.keys(currentApplication["application"]).length == 10){
+      endDate = currentApplication["application"]["consultation"]["endDate"];
+      startDate = currentApplication["application"]["consultation"]["startDate"];}
+      parsedData[(i + iter * pageSize).toString()] = {
+        "title" : currentApplication["property"]["address"]["singleLine"],
+        "latitude" : currentApplication["property"]["address"]["latitude"],
+        "longitude" : currentApplication["property"]["address"]["longitude"],
+        "status" : currentApplication["application"]["status"],
+        "reference" : currentApplication["application"]["reference"],
+        "description" : currentApplication["proposal"]["description"],
+        "postcode": currentApplication["property"]["address"]["postcode"],
+        "startDate": startDate,
+        "endDate": endDate
+      }
     }
   }
-}
+  
+
 
 // Make data GeoJSON format
 function toGeoJSON(data) {
@@ -128,7 +139,55 @@ function toGeoJSON(data) {
   return result;
 }
 
+function generateNumbers(N){
+  let indexArray = []
+  for(let i = 0; i<N; i++){
+    indexArray.push(i.toString());
+  }
+  return{indexArray}
+}
 
+function loadTable(applicationData, indexes){
+  const tableSize = 25;
+  let indexValues = indexes || generateNumbers(tableSize);
+  // Two customisable arrays determining the collumn values of the table (dataHeaders refers to the location of the data in the applicationData dictionary)
+  const dataHeaders = ["title", "startDate", "endDate", "status", "reference"]
+  const headers = ["Name", "Start Date", "Expiry date", "Status", "Reference"]
+  // Generating the heading
+  let tableHTML = '<thead class="govuk-table__head"><tr class="govuk-table__row">'
+  for (let i = 0; i < headers.length; i++){
+    tableHTML += '<th scope="col" class="govuk-table__header">' + headers[i] + '</th>'
+  }
+  tableHTML += '</tr></thead><tbody class="govuk-table__body">'
+  // Generating the rows
+  for(let i = 0; i < tableSize; i++){
+    tableHTML += '<tr class="govuk-table__row">'
+    for(let j = 0; j < dataHeaders.length; j++){
+     tableHTML += '<td>'
+     // Different method depending on whether and indexes array was given as a parameter
+     tableHTML += (applicationData[parseInt(indexValues.indexArray[i])][dataHeaders[j]])
+     tableHTML += '</td>'
+    }
+    tableHTML += '</tr>';
+  }
+  document.getElementById("mapTable").innerHTML = tableHTML;
+}
+// function aims to create an array of indexes correspoding to the ascending order of dates
+function latestDate(applicationData){
+    // center allows for functionality based on distance from current centre of the map (probably should be changed to user's location)
+    let dumpDict = []
+    let sortedDict = []
+    let indexes = []
+    // formats the dictionary data into an array with dates without the hyphens
+    for (let i =0; i < Object.keys(applicationData).length; i++){
+        dumpDict.push(applicationData[i]["startDate"])    
+    }
+    sortedDict = dumpDict.sort()
+    for(let i = 0; i< sortedDict.length; i++){
+      indexes.push(dumpDict.indexOf(sortedDict[i].toString()))
+    }
+    return{indexes}
+}
 
 function App () {
 
@@ -137,28 +196,29 @@ function App () {
   const [map, setMap] = useState(null);
   
   useEffect(() => {
-    let applicationData = {};
-
+    let parsedData = {}
     const loadData = async() => {
       // parse first page's data
       let currentPageData = await fetchData('https://southwark.bops-staging.services/api/v2/public/planning_applications/search');
-      parseJSON(currentPageData, 0, applicationData);
+      parseJSON(currentPageData, 0, parsedData)
       let i = 1;
 
       // iterate through all other pages and parse data
       while (currentPageData.links.next != null) {
         currentPageData = await fetchData(currentPageData.links.next);
-        parseJSON(currentPageData, i, applicationData);
+        parseJSON(currentPageData, i, parsedData)
         i++;
       }
-
-      setGeojson(toGeoJSON(applicationData));
+      let applicationData = parsedData
+      setGeojson(toGeoJSON(parsedData));
       setLoading(false);
+      loadTable(applicationData)
+
     }
-
-    loadData();
+    
+  loadData();
+  setLoading(false);
   }, []);
-
 
   const onEachFeature = (feature, layer) => {
     if (feature.properties && feature.properties.description && feature.properties.status) {
@@ -191,7 +251,7 @@ function App () {
         correctReference = true
       }
     }
-    // given that input is not a valid reference, checks if input is in reference format and outputs corresponding error if true (Not sure of the exact format so this regex might need to be revised)
+    // given that input is not a valid reference, checks if input is in reference format and outputs corresponding error if true
     const referenceRegex = /^[0-9]{2}-?[0-9]{5}-?[0-9A-Z]{4,8}/;
     if (referenceRegex.test(searchInput.toUpperCase()) && correctReference === false) {
       {document.getElementById("errorMsg").innerHTML = "Please enter a valid reference";}
@@ -210,7 +270,6 @@ function App () {
     }
     
   };
-
   const bindSearchToEnter = () => {
     var input = document.getElementById("searchInput");
     if (input === null) { return }
@@ -226,7 +285,9 @@ function App () {
   if (loading) {return (<div>Loading...</div>);}
 
   return (
+    
     <div>
+      
       <HintText>Enter a reference number or postcode</HintText>
       <SearchBox>
         <SearchBox.Input id="searchInput" placeholder="Type here" />
@@ -243,8 +304,25 @@ function App () {
           <LocationMarker />
         </MapContainer>
       </div>
+      <div id = "sortBy" class="govuk-form-group">
+        <label class="govuk-label" for="sort">
+          Sort by
+        </label>
+        <select class="govuk-select" id="sort" name="sort">
+          <option value="default">Order</option>
+          <option value="startDate"selected>Recently started</option>
+          <option value="views">Most views</option>
+          <option value="comments">Most comments</option>
+        </select>
+      </div>
+      <Table id="mapTable">
+        
+      </Table>
     </div>
+
+  
   );
+  
 }
 
 export default App;
