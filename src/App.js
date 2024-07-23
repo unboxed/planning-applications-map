@@ -131,13 +131,13 @@ function App () {
         setGeojson(toGeoJSON(applicationData));
         setLoading(false);
         saveGeoData(geojson);
-        // populateTable();
       } catch (error) {
         console.error('Error loading data:', error);
       }
     };
   
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   //saving/loading geojson data to localstorage so that refresh does not reset the table
