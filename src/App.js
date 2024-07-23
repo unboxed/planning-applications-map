@@ -5,6 +5,7 @@ import './App.css';
 import './govuk-styles.scss';
 import axios from 'axios';
 import LocationMarker from './LocationMarker';
+import $ from 'jquery';
 // import data from './london-spots.json';
 let pageSize = 50;
 let zoomSize = 16;
@@ -129,6 +130,7 @@ function App () {
   
         setGeojson(toGeoJSON(applicationData));
         setLoading(false);
+        populateTable();
       } catch (error) {
         console.error('Error loading data:', error);
       }
@@ -136,6 +138,23 @@ function App () {
   
     loadData();
   }, []);
+
+  const populateTable = async() => {
+    let loaded = false;
+    loaded = await(!loading);
+    if (loaded) {
+      $("#applicationTableBody").empty();
+
+      for (let i = 0; i < Object.keys(geojson.features).length; i++) {
+        var details = geojson.features[i].properties;
+        $("#applicationTable").find('tbody').append("<tr class='govuk-table__row'>" + 
+          "<td class='govuk-table__cell'>" + details.name + "</td>" +
+          "<td class='govuk-table__cell'>" + details.reference + "</td>" +
+          "<td class='govuk-table__cell'>" + details.status + "</td>" +
+          + "</tr>");
+      }
+    }
+  }
 
   const onEachFeature = (feature, layer) => {
     if (feature.properties && feature.properties.description && feature.properties.status && feature.properties.publicUrl) {
@@ -221,21 +240,35 @@ function App () {
 
   return (
     <div>
-      <HintText>Enter a reference number or postcode</HintText>
-      <SearchBox>
-        <SearchBox.Input id="searchInput" placeholder="Type here" />
-        <SearchBox.Button id="searchBtn" onClick={search} />
-      </SearchBox>
-      <ErrorText id="errorMsg"></ErrorText>
-      <div data-testid="mapContainer" style={{ height: 'calc(100% - 30px)', position: 'relative' }} >
-        <MapContainer ref={setMap} center={[51.505, -0.09]} zoom={13}>
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          <GeoJSON data={geojson} onEachFeature={onEachFeature} />
-          <LocationMarker />
-        </MapContainer>
+      <div>
+        <HintText>Enter a reference number or postcode</HintText>
+        <SearchBox>
+          <SearchBox.Input id="searchInput" placeholder="Type here" />
+          <SearchBox.Button id="searchBtn" onClick={search} />
+        </SearchBox>
+        <ErrorText id="errorMsg"></ErrorText>
+        <div data-testid="mapContainer" style={{ height: 'calc(100% - 30px)', position: 'relative' }} >
+          <MapContainer ref={setMap} center={[51.505, -0.09]} zoom={13}>
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <GeoJSON data={geojson} onEachFeature={onEachFeature} />
+            <LocationMarker />
+          </MapContainer>
+        </div>
+      </div>
+      <div>
+        <table className="govuk-table" id="applicationTable">
+          <thead className="govuk-table__head">
+            <tr className="govuk-table__row">
+              <th scope="col" className="govuk-table__header">Address</th>
+              <th scope="col" className="govuk-table__header">Reference number</th>
+              <th scope="col" className="govuk-table__header">Current Status</th>
+            </tr>
+          </thead>
+          <tbody className="govuk-table__body" id="applicationTableBody"></tbody>
+        </table>
       </div>
     </div>
   );
