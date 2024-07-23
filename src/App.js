@@ -130,7 +130,8 @@ function App () {
   
         setGeojson(toGeoJSON(applicationData));
         setLoading(false);
-        populateTable();
+        saveGeoData(geojson);
+        // populateTable();
       } catch (error) {
         console.error('Error loading data:', error);
       }
@@ -139,14 +140,33 @@ function App () {
     loadData();
   }, []);
 
-  const populateTable = async() => {
+  //saving/loading geojson data to localstorage so that refresh does not reset the table
+  const saveGeoData = async(data) => {
+    let loaded = false;
+    loaded = await(!loading);
+    if (loaded) {
+      localStorage.setItem('geojsonData', JSON.stringify(data));
+    }
+  }
+
+  const loadGeoData = async() => {
+    let loaded = false;
+    loaded = await(!loading);
+    if (loaded) {
+      const data = localStorage.getItem('geojsonData');
+      return data ? JSON.parse(data) : null;
+    }
+  }
+
+  const populateTable = async(data) => {
+    console.log(data);
     let loaded = false;
     loaded = await(!loading);
     if (loaded) {
       $("#applicationTableBody").empty();
 
-      for (let i = 0; i < Object.keys(geojson.features).length; i++) {
-        var details = geojson.features[i].properties;
+      for (let i = 0; i < Object.keys(data.features).length; i++) {
+        var details = data.features[i].properties;
         $("#applicationTable").find('tbody').append("<tr class='govuk-table__row'>" + 
           "<td class='govuk-table__cell'>" + details.name + "</td>" +
           "<td class='govuk-table__cell'>" + details.reference + "</td>" +
@@ -237,6 +257,10 @@ function App () {
   bindSearchToEnter();
 
   if (loading) {return (<div>Loading...</div>);}
+
+  $(document).ready(async() => {
+    populateTable(await loadGeoData());
+  });
 
   return (
     <div>
