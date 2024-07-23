@@ -66,6 +66,9 @@ function parseJSON (data, iter, applicationData) {
       var urlEntry = {"publicUrl": currentApplication["application"]["consultation"]["publicUrl"]};
       Object.assign(applicationData[(i + iter * pageSize).toString()], urlEntry);
     }
+    if (currentApplication["application"]["reference"] === "23-00512-translation missing: en.application_type_codes.planning_permission.existing") { 
+      applicationData[(i + iter * pageSize).toString()].reference = "21";
+    } // REMOVE ME IN PROD!!
   }
 }
 
@@ -166,12 +169,21 @@ function App () {
       $("#applicationTableBody").empty();
 
       for (let i = 0; i < Object.keys(data.features).length; i++) {
-        var details = data.features[i].properties;
-        $("#applicationTable").find('tbody').append("<tr class='govuk-table__row'>" + 
-          "<td class='govuk-table__cell'>" + details.name + "</td>" +
-          "<td class='govuk-table__cell'>" + details.reference + "</td>" +
-          "<td class='govuk-table__cell'>" + details.status + "</td>" +
-          + "</tr>");
+        var feature = data.features[i].properties;
+
+        let featureHTML = `<tr class='govuk-table__row'>
+          <td class='govuk-table__cell'>${feature.name} </td>
+          <td class='govuk-table__cell'>${feature.reference}</td>
+          <td class='govuk-table__cell'>${feature.description}</td>
+          <td class='govuk-table__cell'>${feature.status}</td>`;
+        
+        if (feature.publicUrl === undefined) { featureHTML += `<td class='govuk-table__cell'>N/A</td></tr>`;}
+        
+        else { 
+          featureHTML += `<td class='govuk-table__cell'><a class='govuk-link' href='${feature.publicUrl}' target='_blank'>More info</a></td></tr>`;
+        }
+
+        $("#applicationTable").find('tbody').append(featureHTML);
       }
     }
   }
@@ -283,12 +295,16 @@ function App () {
         </div>
       </div>
       <div>
+        <br />
         <table className="govuk-table" id="applicationTable">
+        <caption class="govuk-table__caption govuk-table__caption--l">Table of Applications</caption>
           <thead className="govuk-table__head">
             <tr className="govuk-table__row">
               <th scope="col" className="govuk-table__header">Address</th>
               <th scope="col" className="govuk-table__header">Reference number</th>
+              <th scope="col" className="govuk-table__header">Description</th>
               <th scope="col" className="govuk-table__header">Current Status</th>
+              <th scope="col" className="govuk-table__header" style={{whiteSpace: 'nowrap'}}>More info</th>
             </tr>
           </thead>
           <tbody className="govuk-table__body" id="applicationTableBody"></tbody>
