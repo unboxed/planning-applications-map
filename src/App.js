@@ -238,8 +238,8 @@ function App () {
   
         for (i = 1; i < (rows.length - 1); i++) {
           shouldSwitch = false;
-            x = rows[i].getElementsByTagName("td")[3];
-            y = rows[i + 1].getElementsByTagName("td")[3];
+          x = rows[i].getElementsByTagName("td")[3];
+          y = rows[i + 1].getElementsByTagName("td")[3];
   
           if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
             shouldSwitch = true;
@@ -280,6 +280,26 @@ function App () {
         if (shouldSwitch) {
           rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
           switching = true;
+        }
+      }
+    }
+  }
+  function searchTable() {
+    var input = document.getElementById("tableSearchInput");
+    var filter = input.value.toUpperCase();
+    var table = document.getElementById("applicationTable");
+    var tr = table.getElementsByTagName("tr");
+
+    for (let i = 0; i < tr.length; i++) {
+      var tdAddr = tr[i].getElementsByTagName("td")[0];
+      var tdRef = tr[i].getElementsByTagName("td")[1];
+      var tdDesc = tr[i].getElementsByTagName("td")[2];
+      if (tdAddr) {
+        if (tdAddr.innerText.toUpperCase().indexOf(filter) > -1 || tdRef.innerText.toUpperCase().indexOf(filter) > -1 || tdDesc.innerText.toUpperCase().indexOf(filter) > -1 ) {
+          tr[i].style.display = "";
+        }
+        else {
+          tr[i].style.display = "none";
         }
       }
     }
@@ -400,7 +420,13 @@ function App () {
             </span>
           </summary>
           <div class="parent">
-            <div className="govuk-form-group" class="child" >
+            <div className="govuk-form-group" class="child">
+              <label class="govuk-label">
+                Search 
+              </label>
+              <input class="govuk-input govuk-input--width-20" id="tableSearchInput" type="text" onKeyUp={searchTable}></input>
+            </div>
+            <div className="govuk-form-group" class="child">
               <label className="govuk-label">
                 Filter by status
               </label>
@@ -409,6 +435,7 @@ function App () {
                 <option value="In assessment">In assessment</option>
                 <option value="Awaiting determination">Awaiting determination</option>
                 <option value="Determined">Determined</option>
+                <option value="Returned">Returned</option>
                 <option value="In committee">In committee</option>
                 <option value="Not started">Not started</option>
               </select>
