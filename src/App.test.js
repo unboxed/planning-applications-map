@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect'; 
 import App from './App';
 import axios from 'axios';
@@ -43,6 +43,7 @@ test('Map renders', async() => {
           application: {
             status: 'Pending',
             reference: '21-12345',
+            receivedAt: '2024-07-24',
           },
           proposal: {
             description: 'Test Proposal',
@@ -55,12 +56,8 @@ test('Map renders', async() => {
 
   render(<App />);
 
-  await waitFor(() => {
-    expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
-  });
-
-  await waitFor(() => {
-    const mapElement = screen.queryByTestId('mapContainer');
-    expect(mapElement).toBeInTheDocument();
-  });
-})
+  await waitForElementToBeRemoved(() => screen.queryByText('Loading...'));
+ 
+  const mapElement = await waitFor(() => screen.getByTestId('mapContainer'));
+  expect(mapElement).toBeInTheDocument();
+});
