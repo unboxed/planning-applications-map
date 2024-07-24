@@ -54,6 +54,7 @@ const fetchPostCode = async(postcode) => {
 function parseJSON (data, iter, applicationData) {
   for (let i = 0; i < Object.keys(data.data).length; i++) {
     var currentApplication = data.data[i.toString()];
+    console.log(currentApplication);
     applicationData[(i + iter * pageSize).toString()] = {
       "title" : currentApplication["property"]["address"]["singleLine"],
       "latitude" : currentApplication["property"]["address"]["latitude"],
@@ -70,6 +71,13 @@ function parseJSON (data, iter, applicationData) {
       applicationData[(i + iter * pageSize).toString()].reference = "21";
     } // REMOVE ME IN PROD!!
   }
+}
+
+function humanize(str) {
+  return str
+      .replace(/^[\s_]+|[\s_]+$/g, '')
+      .replace(/[_\s]+/g, ' ')
+      .replace(/^[a-z]/, function(m) { return m.toUpperCase(); });
 }
 
 // Make data GeoJSON format
@@ -162,7 +170,6 @@ function App () {
   }
 
   const populateTable = async(data) => {
-    console.log(data);
     let loaded = false;
     loaded = await(!loading);
     if (loaded) {
@@ -175,7 +182,7 @@ function App () {
           <td class='govuk-table__cell'>${feature.name} </td>
           <td class='govuk-table__cell'>${feature.reference}</td>
           <td class='govuk-table__cell'>${feature.description}</td>
-          <td class='govuk-table__cell'>${feature.status}</td>`;
+          <td class='govuk-table__cell'>${humanize(feature.status)}</td>`;
         
         if (feature.publicUrl === undefined) { featureHTML += `<td class='govuk-table__cell'>N/A</td></tr>`;}
         
@@ -195,7 +202,7 @@ function App () {
       div.innerHTML = `<h3 class="govuk-heading-m" style="font-size: 20px">${feature.properties.name}</h3>
         <p class="govuk-body" style="font-size: 14px">Reference: ${feature.properties.reference}</p>
         <p class="govuk-body" style="font-size: 14px">Planned work: ${feature.properties.description}</p>
-        <p class="govuk-body" style="font-size: 14px">Current status: ${feature.properties.status}</p>
+        <p class="govuk-body" style="font-size: 14px">Current status: ${humanize(feature.properties.status)}</p>
         <a class="govuk-link" style="font-size: 14px" href="${feature.properties.publicUrl}" target="_blank">More info</a>`;
       layer.bindPopup(div);
     }
