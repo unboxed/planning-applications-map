@@ -74,6 +74,7 @@ function parseJSON (data, iter, applicationData) {
       "longitude" : currentApplication["property"]["address"]["longitude"],
       "status" : currentApplication["application"]["status"],
       "reference" : currentApplication["application"]["reference"],
+      "recvDate" : currentApplication["application"]["receivedAt"].slice(0,10),
       "description" : currentApplication["proposal"]["description"],
     }
     if (currentApplication["application"].hasOwnProperty("consultation")) {
@@ -108,6 +109,7 @@ function toGeoJSON(data) {
         "description" : data[iter]["description"],
         "status" : data[iter]["status"],
         "reference" : data[iter]["reference"],
+        "recvDate" : data[iter]["recvDate"],
         "publicUrl" : data[iter]["publicUrl"],
       },
     });
@@ -189,6 +191,7 @@ function App () {
           <td class='govuk-table__cell'>${addresize(feature.name)} </td>
           <td class='govuk-table__cell'>${feature.reference}</td>
           <td class='govuk-table__cell'>${feature.description}</td>
+          <td class='govuk-table__cell'>${feature.recvDate}</td>
           <td class='govuk-table__cell'>${humanize(feature.status)}</td>`;
         
         if (feature.publicUrl === undefined) { featureHTML += `<td class='govuk-table__cell'>N/A</td></tr>`;}
@@ -207,7 +210,7 @@ function App () {
     var tr = table.getElementsByTagName("tr");
 
     for (let i = 0; i < tr.length; i++) {
-      var td = tr[i].getElementsByTagName("td")[3];
+      var td = tr[i].getElementsByTagName("td")[4];
       if (td) {
         if (("None" === document.getElementById("filterSelect").value)) {
           tr[i].style.display = "";
@@ -224,34 +227,62 @@ function App () {
 
   function sortTable() {
     var table = document.getElementById("applicationTable");
+    var selectedVal = document.getElementById("sortSelect").value;
     var switching = true;
-    var i;
+    var i, x, y, shouldSwitch, rows;
 
-    while (switching) {
-      switching = false;
-      var rows = table.rows;
-
-      for (i = 1; i < (rows.length - 1); i++) {
-        var shouldSwitch = false;
-
-        if (document.getElementById("sortSelect").value === "ref") {
-          var x = rows[i].getElementsByTagName("TD")[1];
-          var y = rows[i + 1].getElementsByTagName("TD")[1];
+    if (selectedVal === "date_des") {
+      while (switching) {
+        switching = false;
+        rows = table.rows;
+  
+        for (i = 1; i < (rows.length - 1); i++) {
+          shouldSwitch = false;
+            x = rows[i].getElementsByTagName("td")[3];
+            y = rows[i + 1].getElementsByTagName("td")[3];
+  
+          if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+            shouldSwitch = true;
+            break;
+          }
         }
-        else { break; }
-
-        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-          shouldSwitch = true;
-          break;
+  
+        if (shouldSwitch) {
+          rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+          switching = true;
         }
-      }
-
-      if (shouldSwitch) {
-        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-        switching = true;
       }
     }
-
+    else {
+      while (switching) {
+        switching = false;
+        rows = table.rows;
+  
+        for (i = 1; i < (rows.length - 1); i++) {
+          shouldSwitch = false;
+  
+          if (selectedVal === "ref") {
+            x = rows[i].getElementsByTagName("td")[1];
+            y = rows[i + 1].getElementsByTagName("td")[1];
+          }
+          else if (selectedVal === "date_asc" || selectedVal === "date_des") {
+            x = rows[i].getElementsByTagName("td")[3];
+            y = rows[i + 1].getElementsByTagName("td")[3];
+          }
+          else { break; }
+  
+          if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+            shouldSwitch = true;
+            break;
+          }
+        }
+  
+        if (shouldSwitch) {
+          rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+          switching = true;
+        }
+      }
+    }
   }
 
   const onEachFeature = (feature, layer) => {
@@ -400,6 +431,7 @@ function App () {
                 <th scope="col" className="govuk-table__header">Address</th>
                 <th scope="col" className="govuk-table__header">Reference number</th>
                 <th scope="col" className="govuk-table__header">Description</th>
+                <th scope="col" className="govuk-table__header">Date received</th>
                 <th scope="col" className="govuk-table__header">Current Status</th>
                 <th scope="col" className="govuk-table__header" style={{ whiteSpace: 'nowrap' }}>More info</th>
               </tr>
