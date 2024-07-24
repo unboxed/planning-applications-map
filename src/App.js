@@ -202,6 +202,26 @@ function App () {
     }
   }
 
+  function filterTable(){
+    var table = document.getElementById("applicationTable");
+    var tr = table.getElementsByTagName("tr");
+
+    for (let i = 0; i < tr.length; i++) {
+      var td = tr[i].getElementsByTagName("td")[3];
+      if (td) {
+        if (("None" === document.getElementById("filterSelect").value)) {
+          tr[i].style.display = "";
+        }
+        else if (td.innerText === document.getElementById("filterSelect").value) {
+          tr[i].style.display = "";
+        }
+        else {
+          tr[i].style.display = "none";
+        }
+      }
+    }
+  }
+
   const onEachFeature = (feature, layer) => {
     if (feature.properties && feature.properties.description && feature.properties.status && feature.properties.publicUrl) {
 
@@ -310,12 +330,25 @@ function App () {
       </div>
       <div>
         <br />
-        <details class="govuk-details">
-          <summary class="govuk-details__summary">
-            <span class="govuk-details__summary-text">
+        <details className="govuk-details">
+          <summary className="govuk-details__summary">
+            <span className="govuk-details__summary-text">
               View applications as a table
             </span>
           </summary>
+          <div className="govuk-form-group">
+            <label className="govuk-label" for="sort">
+              Filter by status
+            </label>
+            <select className="govuk-select" id="filterSelect" name="filterSelect" onChange={filterTable}>
+              <option value="None">None</option>
+              <option value="In assessment">In assessment</option>
+              <option value="Awaiting determination" selected>Awaiting determination</option>
+              <option value="Determined">Determined</option>
+              <option value="In committee">In committee</option>
+              <option value="Not started">Not started</option>
+            </select>
+          </div>
           <table className="govuk-table" id="applicationTable">
             <thead className="govuk-table__head">
               <tr className="govuk-table__row">

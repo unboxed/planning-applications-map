@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect'; 
 import App from './App';
+import * as bruh from './App';
 import axios from 'axios';
 
 jest.mock('axios');
@@ -21,6 +22,8 @@ jest.mock('react-leaflet', () => {
 jest.mock('./LocationMarker', () => {
   return jest.fn(() => <div>Mocked LocationMarker</div>);
 });
+
+bruh.populateTable = jest.fn().mockReturnValue({data: {features: {name: "teest"}}});
 
 test('Loading... is shown on site', () => {
   render(<App />);
