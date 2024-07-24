@@ -296,19 +296,25 @@ function App () {
       </div>
       <div>
         <br />
-        <table className="govuk-table" id="applicationTable">
-        <caption class="govuk-table__caption govuk-table__caption--l">Table of Applications</caption>
-          <thead className="govuk-table__head">
-            <tr className="govuk-table__row">
-              <th scope="col" className="govuk-table__header">Address</th>
-              <th scope="col" className="govuk-table__header">Reference number</th>
-              <th scope="col" className="govuk-table__header">Description</th>
-              <th scope="col" className="govuk-table__header">Current Status</th>
-              <th scope="col" className="govuk-table__header" style={{whiteSpace: 'nowrap'}}>More info</th>
-            </tr>
-          </thead>
-          <tbody className="govuk-table__body" id="applicationTableBody"></tbody>
-        </table>
+        <details class="govuk-details">
+          <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">
+              View applications as a table
+            </span>
+          </summary>
+          <table className="govuk-table" id="applicationTable">
+            <thead className="govuk-table__head">
+              <tr className="govuk-table__row">
+                <th scope="col" className="govuk-table__header">Address</th>
+                <th scope="col" className="govuk-table__header">Reference number</th>
+                <th scope="col" className="govuk-table__header">Description</th>
+                <th scope="col" className="govuk-table__header">Current Status</th>
+                <th scope="col" className="govuk-table__header" style={{ whiteSpace: 'nowrap' }}>More info</th>
+              </tr>
+            </thead>
+            <tbody className="govuk-table__body" id="applicationTableBody"></tbody>
+          </table>
+        </details>
       </div>
     </div>
   );
