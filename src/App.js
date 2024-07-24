@@ -11,6 +11,20 @@ let pageSize = 50;
 let zoomSize = 16;
 let apiUrl = "https://southwark.bops-staging.services/api/v2/public/planning_applications/";
 
+function humanize(str) {
+  return str
+    .replace(/^[\s_]+|[\s_]+$/g, '')
+    .replace(/[_\s]+/g, ' ')
+    .replace(/^[a-z]/, function (m) { return m.toUpperCase(); });
+}
+
+function addresize(str) {
+  return str
+    .replace(/[A-Z]+/g, function(m) { return m.toLowerCase(); })
+    .replace(/^[a-z]|\s+[a-z]/g, function(m) { return m.toUpperCase(); })
+    .replace(/[a-z].{0,8}$/, function(m) { return m.toUpperCase(); });
+}
+
 const fetchData = async (link) => {
   try {
     const response = await axios.get(link, {
@@ -54,7 +68,6 @@ const fetchPostCode = async(postcode) => {
 function parseJSON (data, iter, applicationData) {
   for (let i = 0; i < Object.keys(data.data).length; i++) {
     var currentApplication = data.data[i.toString()];
-    console.log(currentApplication);
     applicationData[(i + iter * pageSize).toString()] = {
       "title" : currentApplication["property"]["address"]["singleLine"],
       "latitude" : currentApplication["property"]["address"]["latitude"],
@@ -73,12 +86,6 @@ function parseJSON (data, iter, applicationData) {
   }
 }
 
-function humanize(str) {
-  return str
-      .replace(/^[\s_]+|[\s_]+$/g, '')
-      .replace(/[_\s]+/g, ' ')
-      .replace(/^[a-z]/, function(m) { return m.toUpperCase(); });
-}
 
 // Make data GeoJSON format
 function toGeoJSON(data) {
@@ -179,7 +186,7 @@ function App () {
         var feature = data.features[i].properties;
 
         let featureHTML = `<tr class='govuk-table__row'>
-          <td class='govuk-table__cell'>${feature.name} </td>
+          <td class='govuk-table__cell'>${addresize(feature.name)} </td>
           <td class='govuk-table__cell'>${feature.reference}</td>
           <td class='govuk-table__cell'>${feature.description}</td>
           <td class='govuk-table__cell'>${humanize(feature.status)}</td>`;
@@ -199,7 +206,7 @@ function App () {
     if (feature.properties && feature.properties.description && feature.properties.status && feature.properties.publicUrl) {
 
       const div = document.createElement('div');
-      div.innerHTML = `<h3 class="govuk-heading-m" style="font-size: 20px">${feature.properties.name}</h3>
+      div.innerHTML = `<h3 class="govuk-heading-m" style="font-size: 20px">${addresize(feature.properties.name)}</h3>
         <p class="govuk-body" style="font-size: 14px">Reference: ${feature.properties.reference}</p>
         <p class="govuk-body" style="font-size: 14px">Planned work: ${feature.properties.description}</p>
         <p class="govuk-body" style="font-size: 14px">Current status: ${humanize(feature.properties.status)}</p>
@@ -209,7 +216,7 @@ function App () {
     else if (feature.properties && feature.properties.description && feature.properties.status) {
 
       const div = document.createElement('div');
-      div.innerHTML = `<h3 class="govuk-heading-m" style="font-size: 20px">${feature.properties.name}</h3>
+      div.innerHTML = `<h3 class="govuk-heading-m" style="font-size: 20px">${addresize(feature.properties.name)}</h3>
         <p class="govuk-body" style="font-size: 14px">Reference: ${feature.properties.reference}</p>
         <p class="govuk-body" style="font-size: 14px">Planned work: ${feature.properties.description}</p>
         <p class="govuk-body" style="font-size: 14px">Current status: ${feature.properties.status}</p>`;
@@ -222,11 +229,11 @@ function App () {
       layer.bindPopup(div);
     }
     else if (feature.properties && feature.properties.description) {
-      layer.bindPopup(`<h3 class="govuk-heading-m" style="font-size: 20px">${feature.properties.name}</h3>
+      layer.bindPopup(`<h3 class="govuk-heading-m" style="font-size: 20px">${addresize(feature.properties.name)}</h3>
         <p class="govuk-body" style="font-size: 14px">Planned work: ${feature.properties.description}</p>`);
     }
     else if (feature.properties) {
-      layer.bindPopup(`<h3 class="govuk-heading-m" style="font-size: 20px">${feature.properties.name}</h3>`);
+      layer.bindPopup(`<h3 class="govuk-heading-m" style="font-size: 20px">${addresize(feature.properties.name)}</h3>`);
     }
   };
 
