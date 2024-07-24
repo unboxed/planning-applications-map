@@ -184,6 +184,8 @@ function App () {
     if (loaded) {
       $("#applicationTableBody").empty();
 
+      if (data === null) {return;}
+
       for (let i = 0; i < Object.keys(data.features).length; i++) {
         var feature = data.features[i].properties;
 
