@@ -222,6 +222,38 @@ function App () {
     }
   }
 
+  function sortTable() {
+    var table = document.getElementById("applicationTable");
+    var switching = true;
+    var i;
+
+    while (switching) {
+      switching = false;
+      var rows = table.rows;
+
+      for (i = 1; i < (rows.length - 1); i++) {
+        var shouldSwitch = false;
+
+        if (document.getElementById("sortSelect").value === "ref") {
+          var x = rows[i].getElementsByTagName("TD")[1];
+          var y = rows[i + 1].getElementsByTagName("TD")[1];
+        }
+        else { break; }
+
+        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+          shouldSwitch = true;
+          break;
+        }
+      }
+
+      if (shouldSwitch) {
+        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+        switching = true;
+      }
+    }
+
+  }
+
   const onEachFeature = (feature, layer) => {
     if (feature.properties && feature.properties.description && feature.properties.status && feature.properties.publicUrl) {
 
@@ -336,18 +368,31 @@ function App () {
               View applications as a table
             </span>
           </summary>
-          <div className="govuk-form-group">
-            <label className="govuk-label" for="sort">
-              Filter by status
-            </label>
-            <select className="govuk-select" id="filterSelect" name="filterSelect" onChange={filterTable}>
-              <option value="None">None</option>
-              <option value="In assessment">In assessment</option>
-              <option value="Awaiting determination" selected>Awaiting determination</option>
-              <option value="Determined">Determined</option>
-              <option value="In committee">In committee</option>
-              <option value="Not started">Not started</option>
-            </select>
+          <div class="parent">
+            <div className="govuk-form-group" class="child" >
+              <label className="govuk-label">
+                Filter by status
+              </label>
+              <select className="govuk-select" id="filterSelect" name="filterSelect" onChange={filterTable} defaultValue={"None"}>
+                <option value="None">None</option>
+                <option value="In assessment">In assessment</option>
+                <option value="Awaiting determination">Awaiting determination</option>
+                <option value="Determined">Determined</option>
+                <option value="In committee">In committee</option>
+                <option value="Not started">Not started</option>
+              </select>
+            </div>
+            <div className="govuk-form-group" class="child">
+              <label className="govuk-label">
+                Sort by
+              </label>
+              <select className="govuk-select" id="sortSelect" name="sortSelect" onChange={sortTable} defaultValue={"None"}>
+                <option value="None">None</option>
+                <option value="date_asc">Date received (asc)</option>
+                <option value="date_des">Date received (desc)</option>
+                <option value="ref">Reference number</option>
+              </select>
+            </div>
           </div>
           <table className="govuk-table" id="applicationTable">
             <thead className="govuk-table__head">
