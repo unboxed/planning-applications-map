@@ -285,10 +285,8 @@ function App () {
   }
 
   function searchTable() {
-    var input = document.getElementById("tableSearchInput");
-    var filter = input.value.toUpperCase();
-    var table = document.getElementById("applicationTable");
-    var tr = table.getElementsByTagName("tr");
+    var input = document.getElementById("tableSearchInput").value.toUpperCase();
+    var tr = document.getElementById("applicationTable").getElementsByTagName("tr");
 
     for (let i = 0; i < tr.length; i++) {
       var tdAddr = tr[i].getElementsByTagName("td")[0];
@@ -297,7 +295,7 @@ function App () {
       var tdStat = tr[i].getElementsByTagName("td")[4];
 
       if (tdAddr) {
-        if (tdAddr.innerText.toUpperCase().indexOf(filter) > -1 || tdRef.innerText.toUpperCase().indexOf(filter) > -1 || tdDesc.innerText.toUpperCase().indexOf(filter) > -1 ) {
+        if (tdAddr.innerText.toUpperCase().indexOf(input) > -1 || tdRef.innerText.toUpperCase().indexOf(input) > -1 || tdDesc.innerText.toUpperCase().indexOf(input) > -1 ) {
           if (document.getElementById("filterSelect").value === "None") {
             tr[i].style.display = "";
           }
@@ -347,7 +345,7 @@ function App () {
     }
   };
 
-  const search = async() => {
+  const searchMapInput = async() => {
     if (!map) {return}
     document.getElementById("errorMsg").innerHTML = "";
     document.getElementById("errorMsg").style.marginTop = "5px";
@@ -380,6 +378,41 @@ function App () {
     }
   };
 
+  const searchMapArea = async() => {
+    if (!map) { return; }
+    var toDisplay = [];
+    
+    map.eachLayer(function (layer) {
+      if (layer._latlng === undefined) { return; }
+
+      if (map.getBounds().contains(layer._latlng)) {
+        toDisplay.push(layer.feature.properties.reference);
+      }
+
+      console.log(toDisplay)
+      
+      var tr = document.getElementById("applicationTable").getElementsByTagName("tr");
+      for (let i = 0; i < tr.length; i++) {
+        var td = tr[i].getElementsByTagName("td")[1];
+        if (td) {
+          if (toDisplay.includes(td.innerText)) {
+            tr[i].style.display = "";
+          }
+          else {
+            tr[i].style.display = "none";
+          }
+        }
+      }
+    });
+  }
+
+  function resetTable() {
+    var tr = document.getElementById("applicationTable").getElementsByTagName("tr");
+    for (let i = 0; i < tr.length; i++) {
+      tr[i].style.display = "";
+    }
+  }
+
   const bindSearchToEnter = () => {
     var input = document.getElementById("searchInput");
     if (input === null) { return }
@@ -404,10 +437,10 @@ function App () {
         <HintText>Enter a reference number or postcode</HintText>
         <SearchBox>
           <SearchBox.Input id="searchInput" placeholder="Type here" />
-          <SearchBox.Button id="searchBtn" onClick={search} />
+          <SearchBox.Button id="searchBtn" onClick={searchMapInput} />
         </SearchBox>
         <ErrorText id="errorMsg"></ErrorText>
-        <div data-testid="mapContainer" style={{ height: 'calc(100% - 30px)', position: 'relative' }} >
+        <div data-testid="mapContainer" style={{ height: 'calc(100% - 30px)', width: '100%', position: 'relative' }} >
           <MapContainer ref={setMap} center={[51.505, -0.09]} zoom={13}>
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -417,22 +450,19 @@ function App () {
             <LocationMarker />
           </MapContainer>
         </div>
-      </div>
-      <div>
         <br />
-        <details className="govuk-details">
-          <summary className="govuk-details__summary">
-            <span className="govuk-details__summary-text">
-              View applications as a table
-            </span>
-          </summary>
+        <div>
+          <button className="govuk-button govuk-button--secondary" onClick={searchMapArea}>Search this area</button>
+          <button className="govuk-button govuk-button--secondary" onClick={resetTable} style={{marginLeft: "1em"}}>Reset table</button>
+        </div>
+      </div>
           <div className="parent">
-            <div className="govuk-form-group child">
+            {/* <div className="govuk-form-group child">
               <label className="govuk-label">
                 Search 
               </label>
               <input className="govuk-input govuk-input--width-20" id="tableSearchInput" type="text" onKeyUp={searchTable}></input>
-            </div>
+            </div> */}
             <div className="govuk-form-group child">
               <label className="govuk-label">
                 Filter by status
@@ -448,14 +478,14 @@ function App () {
                 <option value="Returned">Returned</option>
               </select>
             </div>
-            <div className="govuk-form-group child">
+            <div className="govuk-form-group child" style={{marginLeft: "1em"}}>
               <label className="govuk-label">
                 Sort by
               </label>
               <select className="govuk-select" id="sortSelect" name="sortSelect" onChange={sortTable} defaultValue={"None"}>
                 <option value="None">None</option>
-                <option value="date_asc">Date received (asc)</option>
-                <option value="date_des">Date received (desc)</option>
+                <option value="date_asc">Oldest first</option>
+                <option value="date_des">Newest first</option>
                 <option value="ref">Reference number</option>
               </select>
             </div>
@@ -473,8 +503,6 @@ function App () {
             </thead>
             <tbody className="govuk-table__body" id="applicationTableBody"></tbody>
           </table>
-        </details>
-      </div>
     </div>
   );
 }
