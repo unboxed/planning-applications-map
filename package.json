@@ -8,7 +8,6 @@
     "axios": "^1.7.2",
     "govuk-frontend": "^5.4.0",
     "govuk-react": "^0.10.7",
-    "jquery": "^3.7.1",
     "leaflet": "^1.9.4",
     "nth-check": ">=2.0.1",
     "react": "^18.3.1",
