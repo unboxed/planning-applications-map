@@ -267,6 +267,7 @@ function App () {
       }
     }
   }
+
   function searchTable() {
     var input = document.getElementById("tableSearchInput");
     var filter = input.value.toUpperCase();
@@ -277,9 +278,16 @@ function App () {
       var tdAddr = tr[i].getElementsByTagName("td")[0];
       var tdRef = tr[i].getElementsByTagName("td")[1];
       var tdDesc = tr[i].getElementsByTagName("td")[2];
+      var tdStat = tr[i].getElementsByTagName("td")[4];
+
       if (tdAddr) {
         if (tdAddr.innerText.toUpperCase().indexOf(filter) > -1 || tdRef.innerText.toUpperCase().indexOf(filter) > -1 || tdDesc.innerText.toUpperCase().indexOf(filter) > -1 ) {
-          tr[i].style.display = "";
+          if (document.getElementById("filterSelect").value === "None") {
+            tr[i].style.display = "";
+          }
+          else if (document.getElementById("filterSelect").value === tdStat.innerText) {
+            tr[i].style.display = "";
+          }
         }
         else {
           tr[i].style.display = "none";
@@ -415,12 +423,13 @@ function App () {
               </label>
               <select className="govuk-select" id="filterSelect" name="filterSelect" onChange={filterTable} defaultValue={"None"}>
                 <option value="None">None</option>
-                <option value="In assessment">In assessment</option>
                 <option value="Awaiting determination">Awaiting determination</option>
+                <option value="Assessment in progress">Assessment in progress</option>
                 <option value="Determined">Determined</option>
-                <option value="Returned">Returned</option>
+                <option value="In assessment">In assessment</option>
                 <option value="In committee">In committee</option>
                 <option value="Not started">Not started</option>
+                <option value="Returned">Returned</option>
               </select>
             </div>
             <div className="govuk-form-group child">
