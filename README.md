@@ -12,7 +12,9 @@ This project:
 - can read a geojson file and output the points/polygons onto the map
 - follows GDS (GOV.UK Design System)
 - uses a GET call from the [bops staging API](https://southwark.bops-staging.services/api/docs/index.html?urls.primaryName=API%20V2%20Docs]) and then formats and displays all found planning applications' address, description and status (if they exist) on the interactive map
-- search by either typing a reference number or UK postcode and pressing enter or clicking the search button
+- can search the map by either typing a reference number or UK postcode and pressing enter or clicking the search button
+- also optionally displays the information in a table format
+- can filter, sort or search said table
 
 ## Current deployment
 
