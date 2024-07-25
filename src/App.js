@@ -63,6 +63,12 @@ function ready(fn) {
   }
 }
 
+function generateElements(html) {
+  const template = document.createElement('template');
+  template.innerHTML = html.trim();
+  return template.content;
+}
+
 // const fetchApplicationDocs = async(ref) => {
 //   try {
 //     const response = await axios.get(apiUrl + ref + "/documents");
@@ -175,6 +181,8 @@ function App () {
 
       if (data === null) {return;}
 
+      const table = document.querySelector("#applicationTable").querySelector('tbody')
+
       for (let i = 0; i < Object.keys(data.features).length; i++) {
         var feature = data.features[i].properties;
 
@@ -184,14 +192,14 @@ function App () {
           <td class='govuk-table__cell'>${feature.description}</td>
           <td class='govuk-table__cell'>${feature.recvDate}</td>
           <td class='govuk-table__cell'>${humanize(feature.status)}</td>`;
-        
-        if (feature.publicUrl === undefined) { featureHTML += `<td class='govuk-table__cell'>N/A</td></tr>`;}
-        
-        else { 
+
+        if (feature.publicUrl === undefined) { featureHTML += `<td class='govuk-table__cell'>N/A</td></tr>`; }
+
+        else {
           featureHTML += `<td class='govuk-table__cell'><a class='govuk-link' href='${feature.publicUrl}' target='_blank'>More info</a></td></tr>`;
         }
 
-        document.querySelector("#applicationTable").querySelector('tbody').append(featureHTML);
+        table.append(generateElements(featureHTML));
       }
     }
   }
