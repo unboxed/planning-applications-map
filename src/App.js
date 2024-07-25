@@ -150,7 +150,6 @@ function App () {
   
         setGeojson(toGeoJSON(applicationData));
         setLoading(false);
-        saveGeoData(geojson);
       } catch (error) {
         console.error('Error loading data:', error);
       }
@@ -159,24 +158,6 @@ function App () {
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  //saving/loading geojson data to localstorage so that refresh does not reset the table
-  const saveGeoData = async(data) => {
-    let loaded = false;
-    loaded = await(!loading);
-    if (loaded) {
-      localStorage.setItem('geojsonData', JSON.stringify(data));
-    }
-  }
-
-  const loadGeoData = async() => {
-    let loaded = false;
-    loaded = await(!loading);
-    if (loaded) {
-      const data = localStorage.getItem('geojsonData');
-      return data ? JSON.parse(data) : null;
-    }
-  }
 
   const populateTable = async(data) => {
     let loaded = false;
@@ -390,7 +371,7 @@ function App () {
   if (loading) {return (<div>Loading...</div>);}
 
   $(document).ready(async() => {
-    populateTable(await loadGeoData());
+    populateTable(geojson);
   });
 
   return (
@@ -421,14 +402,14 @@ function App () {
               View applications as a table
             </span>
           </summary>
-          <div class="parent">
-            <div className="govuk-form-group" class="child">
-              <label class="govuk-label">
+          <div className="parent">
+            <div className="govuk-form-group child">
+              <label className="govuk-label">
                 Search 
               </label>
-              <input class="govuk-input govuk-input--width-20" id="tableSearchInput" type="text" onKeyUp={searchTable}></input>
+              <input className="govuk-input govuk-input--width-20" id="tableSearchInput" type="text" onKeyUp={searchTable}></input>
             </div>
-            <div className="govuk-form-group" class="child">
+            <div className="govuk-form-group child">
               <label className="govuk-label">
                 Filter by status
               </label>
@@ -442,7 +423,7 @@ function App () {
                 <option value="Not started">Not started</option>
               </select>
             </div>
-            <div className="govuk-form-group" class="child">
+            <div className="govuk-form-group child">
               <label className="govuk-label">
                 Sort by
               </label>
