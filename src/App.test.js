@@ -57,7 +57,14 @@ test('Map renders', async() => {
   render(<App />);
 
   await waitForElementToBeRemoved(() => screen.queryByText('Loading...'));
- 
+
   const mapElement = await waitFor(() => screen.getByTestId('mapContainer'));
   expect(mapElement).toBeInTheDocument();
+
+  const referenceElement = await waitFor(() => screen.queryByText('21-12345'));
+  const descriptionElement = await waitFor(() => screen.queryByText('Test Proposal'));
+  const statusElement = await waitFor(() => screen.queryByText('Pending'));
+  expect(referenceElement).toBeInTheDocument();
+  expect(descriptionElement).toBeInTheDocument();
+  expect(statusElement).toBeInTheDocument();
 });
