@@ -5,7 +5,6 @@ import './App.css';
 import './govuk-styles.scss';
 import axios from 'axios';
 import LocationMarker from './LocationMarker';
-import $ from 'jquery';
 // import data from './london-spots.json';
 let pageSize = 50;
 let zoomSize = 16;
@@ -52,6 +51,15 @@ const fetchPostCode = async(postcode) => {
   } catch (e) {
     console.log(e);
     return 'failed!'
+  }
+}
+
+// https://youmightnotneedjquery.com/#ready
+function ready(fn) {
+  if (document.readyState !== 'loading') {
+    fn();
+  } else {
+    document.addEventListener('DOMContentLoaded', fn);
   }
 }
 
@@ -163,7 +171,7 @@ function App () {
     let loaded = false;
     loaded = await(!loading);
     if (loaded) {
-      $("#applicationTableBody").empty();
+      document.querySelector("#applicationTableBody").replaceChildren();
 
       if (data === null) {return;}
 
@@ -183,7 +191,7 @@ function App () {
           featureHTML += `<td class='govuk-table__cell'><a class='govuk-link' href='${feature.publicUrl}' target='_blank'>More info</a></td></tr>`;
         }
 
-        $("#applicationTable").find('tbody').append(featureHTML);
+        document.querySelector("#applicationTable").querySelector('tbody').append(featureHTML);
       }
     }
   }
@@ -378,7 +386,7 @@ function App () {
 
   if (loading) {return (<div>Loading...</div>);}
 
-  $(document).ready(async() => {
+  ready(async() => {
     populateTable(geojson);
   });
 
