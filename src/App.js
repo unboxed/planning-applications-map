@@ -204,21 +204,21 @@ function App () {
     }
   }
 
-  function filterTable(){
+  function filterTable(event) {
     var table = document.getElementById("applicationTable");
     var tr = table.getElementsByTagName("tr");
+    var filterSelect = event.target;
 
     for (let i = 0; i < tr.length; i++) {
-      var td = tr[i].getElementsByTagName("td")[4];
+      var row = tr[i];
+      var td = row.getElementsByTagName("td")[4];
       if (td) {
-        if (("None" === document.getElementById("filterSelect").value)) {
-          tr[i].style.display = "";
-        }
-        else if (td.innerText === document.getElementById("filterSelect").value) {
-          tr[i].style.display = "";
-        }
-        else {
-          tr[i].style.display = "none";
+        if ("None" === filterSelect.value) {
+          row.style.display = "";
+        } else if (td.innerHTML === filterSelect.value) {
+          row.style.display = "";
+        } else {
+          row.style.display = "none";
         }
       }
     }
