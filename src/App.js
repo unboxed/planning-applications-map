@@ -391,16 +391,27 @@ function App () {
         }
       }
 
-      
       var tr = document.getElementById("applicationTable").getElementsByTagName("tr");
+
       for (let i = 0; i < tr.length; i++) {
         var td = tr[i].getElementsByTagName("td")[1];
+        var tdStat = tr[i].getElementsByTagName("td")[4];
         if (td) {
-          if (toDisplay.includes(td.innerText)) {
-            tr[i].style.display = "";
+          if (document.getElementById("filterSelect").value === "None") {
+            if (toDisplay.includes(td.innerText)) {
+              tr[i].style.display = "";
+            }
+            else {
+              tr[i].style.display = "none";
+            }
           }
           else {
-            tr[i].style.display = "none";
+            if (toDisplay.includes(td.innerText) && document.getElementById("filterSelect").value === tdStat.innerText) {
+              tr[i].style.display = "";
+            }
+            else {
+              tr[i].style.display = "none";
+            }
           }
         }
       }
@@ -412,6 +423,7 @@ function App () {
     for (let i = 0; i < tr.length; i++) {
       tr[i].style.display = "";
     }
+    document.getElementById('filterSelect').selectedIndex = 0;
   }
 
   const bindSearchToEnter = () => {
