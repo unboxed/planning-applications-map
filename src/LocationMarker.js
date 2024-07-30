@@ -42,7 +42,7 @@ function LocationMarker() {
 
   return (
     <>
-      <Button onClick={toggleTracking} style={{ position: 'absolute', top: '93.5%', zIndex: 4000, width: '185px' }}>
+      <Button onClick={toggleTracking} style={{ position: 'absolute', bottom: '-4%', left: "1%", zIndex: 4000, width: '185px' }}>
         {tracking ? 'Hide My Location' : 'Show My Location'}
       </Button>
       {position && (
