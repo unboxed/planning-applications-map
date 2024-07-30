@@ -284,31 +284,31 @@ function App () {
     }
   }
 
-  function searchTable() {
-    var input = document.getElementById("tableSearchInput").value.toUpperCase();
-    var tr = document.getElementById("applicationTable").getElementsByTagName("tr");
+  // function searchTable() {
+  //   var input = document.getElementById("tableSearchInput").value.toUpperCase();
+  //   var tr = document.getElementById("applicationTable").getElementsByTagName("tr");
 
-    for (let i = 0; i < tr.length; i++) {
-      var tdAddr = tr[i].getElementsByTagName("td")[0];
-      var tdRef = tr[i].getElementsByTagName("td")[1];
-      var tdDesc = tr[i].getElementsByTagName("td")[2];
-      var tdStat = tr[i].getElementsByTagName("td")[4];
+  //   for (let i = 0; i < tr.length; i++) {
+  //     var tdAddr = tr[i].getElementsByTagName("td")[0];
+  //     var tdRef = tr[i].getElementsByTagName("td")[1];
+  //     var tdDesc = tr[i].getElementsByTagName("td")[2];
+  //     var tdStat = tr[i].getElementsByTagName("td")[4];
 
-      if (tdAddr) {
-        if (tdAddr.innerText.toUpperCase().indexOf(input) > -1 || tdRef.innerText.toUpperCase().indexOf(input) > -1 || tdDesc.innerText.toUpperCase().indexOf(input) > -1 ) {
-          if (document.getElementById("filterSelect").value === "None") {
-            tr[i].style.display = "";
-          }
-          else if (document.getElementById("filterSelect").value === tdStat.innerText) {
-            tr[i].style.display = "";
-          }
-        }
-        else {
-          tr[i].style.display = "none";
-        }
-      }
-    }
-  }
+  //     if (tdAddr) {
+  //       if (tdAddr.innerText.toUpperCase().indexOf(input) > -1 || tdRef.innerText.toUpperCase().indexOf(input) > -1 || tdDesc.innerText.toUpperCase().indexOf(input) > -1 ) {
+  //         if (document.getElementById("filterSelect").value === "None") {
+  //           tr[i].style.display = "";
+  //         }
+  //         else if (document.getElementById("filterSelect").value === tdStat.innerText) {
+  //           tr[i].style.display = "";
+  //         }
+  //       }
+  //       else {
+  //         tr[i].style.display = "none";
+  //       }
+  //     }
+  //   }
+  // }
 
   const onEachFeature = (feature, layer) => {
     if (feature.properties && feature.properties.description && feature.properties.status && feature.properties.publicUrl) {
@@ -386,10 +386,11 @@ function App () {
       if (layer._latlng === undefined) { return; }
 
       if (map.getBounds().contains(layer._latlng)) {
-        toDisplay.push(layer.feature.properties.reference);
+        if (layer.feature) {
+          toDisplay.push(layer.feature.properties.reference);
+        }
       }
 
-      console.log(toDisplay)
       
       var tr = document.getElementById("applicationTable").getElementsByTagName("tr");
       for (let i = 0; i < tr.length; i++) {
@@ -447,62 +448,64 @@ function App () {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             <GeoJSON data={geojson} onEachFeature={onEachFeature} />
-            <LocationMarker />
+            <div>
+              <LocationMarker />
+              <button className="govuk-button govuk-button--secondary" onClick={searchMapArea} style={{position:"absolute", zIndex:4000, bottom:"-4%", marginLeft:"11em"}}>Search this area</button>
+            </div>
           </MapContainer>
         </div>
         <br />
-        <div>
-          <button className="govuk-button govuk-button--secondary" onClick={searchMapArea}>Search this area</button>
-          <button className="govuk-button govuk-button--secondary" onClick={resetTable} style={{marginLeft: "1em"}}>Reset table</button>
-        </div>
       </div>
-          <div className="parent">
-            {/* <div className="govuk-form-group child">
+      <div className="parent">
+        {/* <div className="govuk-form-group child">
               <label className="govuk-label">
                 Search 
               </label>
               <input className="govuk-input govuk-input--width-20" id="tableSearchInput" type="text" onKeyUp={searchTable}></input>
             </div> */}
-            <div className="govuk-form-group child">
-              <label className="govuk-label">
-                Filter by status
-              </label>
-              <select className="govuk-select" id="filterSelect" name="filterSelect" onChange={filterTable} defaultValue={"None"}>
-                <option value="None">None</option>
-                <option value="Awaiting determination">Awaiting determination</option>
-                <option value="Assessment in progress">Assessment in progress</option>
-                <option value="Determined">Determined</option>
-                <option value="In assessment">In assessment</option>
-                <option value="In committee">In committee</option>
-                <option value="Not started">Not started</option>
-                <option value="Returned">Returned</option>
-              </select>
-            </div>
-            <div className="govuk-form-group child" style={{marginLeft: "1em"}}>
-              <label className="govuk-label">
-                Sort by
-              </label>
-              <select className="govuk-select" id="sortSelect" name="sortSelect" onChange={sortTable} defaultValue={"None"}>
-                <option value="None">None</option>
-                <option value="date_asc">Oldest first</option>
-                <option value="date_des">Newest first</option>
-                <option value="ref">Reference number</option>
-              </select>
-            </div>
-          </div>
-          <table className="govuk-table" id="applicationTable">
-            <thead className="govuk-table__head">
-              <tr className="govuk-table__row">
-                <th scope="col" className="govuk-table__header">Address</th>
-                <th scope="col" className="govuk-table__header">Reference number</th>
-                <th scope="col" className="govuk-table__header">Description</th>
-                <th scope="col" className="govuk-table__header">Date received</th>
-                <th scope="col" className="govuk-table__header">Current Status</th>
-                <th scope="col" className="govuk-table__header" style={{ whiteSpace: 'nowrap' }}>More info</th>
-              </tr>
-            </thead>
-            <tbody className="govuk-table__body" id="applicationTableBody"></tbody>
-          </table>
+        <div className="govuk-form-group child">
+          <label className="govuk-label">
+            Sort by
+          </label>
+          <select className="govuk-select" id="sortSelect" name="sortSelect" onChange={sortTable} defaultValue={"None"}>
+            <option value="None">None</option>
+            <option value="date_asc">Oldest first</option>
+            <option value="date_des">Newest first</option>
+            <option value="ref">Reference number</option>
+          </select>
+        </div>
+        <div className="govuk-form-group child" style={{ marginLeft: "1em" }}>
+          <label className="govuk-label">
+            Filter by status
+          </label>
+          <select className="govuk-select" id="filterSelect" name="filterSelect" onChange={filterTable} defaultValue={"None"}>
+            <option value="None">None</option>
+            <option value="Awaiting determination">Awaiting determination</option>
+            <option value="Assessment in progress">Assessment in progress</option>
+            <option value="Determined">Determined</option>
+            <option value="In assessment">In assessment</option>
+            <option value="In committee">In committee</option>
+            <option value="Not started">Not started</option>
+            <option value="Returned">Returned</option>
+          </select>
+        </div>
+        <div className='child'>
+          <a className="govuk-link" onClick={resetTable} style={{marginLeft:'1em'}}>Clear all filters</a>
+        </div>
+      </div>
+      <table className="govuk-table" id="applicationTable">
+        <thead className="govuk-table__head">
+          <tr className="govuk-table__row">
+            <th scope="col" className="govuk-table__header">Address</th>
+            <th scope="col" className="govuk-table__header">Reference number</th>
+            <th scope="col" className="govuk-table__header">Description</th>
+            <th scope="col" className="govuk-table__header">Date received</th>
+            <th scope="col" className="govuk-table__header">Current Status</th>
+            <th scope="col" className="govuk-table__header" style={{ whiteSpace: 'nowrap' }}>More info</th>
+          </tr>
+        </thead>
+        <tbody className="govuk-table__body" id="applicationTableBody"></tbody>
+      </table>
     </div>
   );
 }
