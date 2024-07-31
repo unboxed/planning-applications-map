@@ -248,7 +248,7 @@ function App () {
           <SearchBox.Button id="searchBtn" onClick={searchMapInput} />
         </SearchBox>
         <ErrorText id="errorMsg"></ErrorText>
-        <div data-testid="mapContainer" style={{ height: 'calc(100% - 30px)', width: '100%', position: 'relative' }} >
+        <div data-testid="mapContainer" style={{ height: '600px', width: '100%', position: 'relative' }} >
           <MapContainer ref={setMap} center={[51.505, -0.09]} zoom={13}>
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

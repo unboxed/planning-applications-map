@@ -48,7 +48,7 @@ function SearchArea() {
     return (
         <>
             <Button onClick={searchMapArea} buttonColour="#f3f2f1" buttonHoverColour="#ffdd00" buttonShadowColour="#929191" buttonTextColour="#0b0c0c" 
-            style={{ position: 'absolute', bottom: '-4%', left: "21%", zIndex: 4000, width: '170px' }}>
+            style={{ position: 'absolute', bottom: '-4%', marginLeft: "11em", zIndex: 4000, width: '170px' }}>
                 Search this area
             </Button>
         </>
