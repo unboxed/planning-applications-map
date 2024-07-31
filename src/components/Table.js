@@ -123,14 +123,6 @@ function sortTable() {
     }
 }
 
-function resetTable() {
-    var tr = document.getElementById("applicationTable").getElementsByTagName("tr");
-    for (let i = 0; i < tr.length; i++) {
-        tr[i].style.display = "";
-    }
-    document.getElementById('filterSelect').selectedIndex = 0;
-}
-
 // function searchTable() {
 //   var input = document.getElementById("tableSearchInput").value.toUpperCase();
 //   var tr = document.getElementById("applicationTable").getElementsByTagName("tr");
@@ -157,5 +149,5 @@ function resetTable() {
 //   }
 // }   
 
-export { populateTable, sortTable, filterTable, resetTable };
+export { populateTable, sortTable, filterTable };
 

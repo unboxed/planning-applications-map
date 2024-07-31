@@ -6,7 +6,7 @@ import './govuk-styles.scss';
 import axios from 'axios';
 import LocationMarker from './components/LocationMarker';
 import { searchMapArea } from './components/SearchArea';
-import { populateTable, filterTable, sortTable, resetTable} from './components/Table';
+import { populateTable, filterTable, sortTable } from './components/Table';
 // import data from './london-spots.json';
 let pageSize = 50;
 let zoomSize = 16;
@@ -121,7 +121,7 @@ function App () {
   const [geojson, setGeojson] = useState(null);
   const [loading, setLoading] = useState(true);
   const [map, setMap] = useState(null);
-  let toDisplay = [];
+  let toDisplay, allResults = [];
   
   useEffect(() => {
     let applicationData = {};
@@ -231,6 +231,15 @@ function App () {
     filterTable(event, toDisplay);
   }
 
+  function resetTable() {
+    var tr = document.getElementById("applicationTable").getElementsByTagName("tr");
+    for (let i = 0; i < tr.length; i++) {
+      tr[i].style.display = "";
+    }
+    document.getElementById('filterSelect').selectedIndex = 0;
+    toDisplay = allResults;
+  }
+
   const bindSearchToEnter = () => {
     var input = document.getElementById("searchInput");
     if (input === null) { return }
@@ -247,7 +256,10 @@ function App () {
 
   ready(async() => {
     let loaded = await (!loading);
-    if (loaded) {toDisplay = populateTable(geojson);}
+    if (loaded) {
+      toDisplay = populateTable(geojson);
+      allResults = toDisplay.slice(0);
+    }
   });
 
   return (
