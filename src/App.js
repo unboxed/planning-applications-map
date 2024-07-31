@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
-import { SearchBox, ErrorText, HintText } from 'govuk-react';
+import { SearchBox, ErrorText, HintText, Button } from 'govuk-react';
 import './App.css';
 import './govuk-styles.scss';
 import axios from 'axios';
 import LocationMarker from './components/LocationMarker';
-import SearchArea from './components/SearchArea';
+import { searchMapArea } from './components/SearchArea';
 import { populateTable, filterTable, sortTable, resetTable} from './components/Table';
 // import data from './london-spots.json';
 let pageSize = 50;
@@ -121,6 +121,7 @@ function App () {
   const [geojson, setGeojson] = useState(null);
   const [loading, setLoading] = useState(true);
   const [map, setMap] = useState(null);
+  let toDisplay = [];
   
   useEffect(() => {
     let applicationData = {};
@@ -220,6 +221,16 @@ function App () {
     }
   };
 
+  async function searchArea() {
+    if (!map) {return}
+    toDisplay = searchMapArea(map);
+    console.log(toDisplay);
+  }
+
+  async function filterTableArea(event) {
+    filterTable(event, toDisplay);
+  }
+
   const bindSearchToEnter = () => {
     var input = document.getElementById("searchInput");
     if (input === null) { return }
@@ -236,7 +247,7 @@ function App () {
 
   ready(async() => {
     let loaded = await (!loading);
-    if (loaded) {populateTable(geojson);}
+    if (loaded) {toDisplay = populateTable(geojson);}
   });
 
   return (
@@ -257,7 +268,10 @@ function App () {
             <GeoJSON data={geojson} onEachFeature={onEachFeature} />
             <div>
               <LocationMarker />
-              <SearchArea />
+              <Button onClick={searchArea} buttonColour="#f3f2f1" buttonHoverColour="#ffdd00" buttonShadowColour="#929191" buttonTextColour="#0b0c0c" 
+            style={{ position: 'absolute', bottom: '-4%', marginLeft: "11em", zIndex: 4000, width: '170px' }}>
+                Search this area
+            </Button>
             </div>
           </MapContainer>
         </div>
@@ -285,7 +299,7 @@ function App () {
           <label className="govuk-label">
             Filter by status
           </label>
-          <select className="govuk-select" id="filterSelect" name="filterSelect" onChange={filterTable} defaultValue={"None"}>
+          <select className="govuk-select" id="filterSelect" name="filterSelect" onChange={filterTableArea} defaultValue={"None"}>
             <option value="None">None</option>
             <option value="Awaiting determination">Awaiting determination</option>
             <option value="Assessment in progress">Assessment in progress</option>
