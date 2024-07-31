@@ -22,6 +22,10 @@ jest.mock('./components/LocationMarker', () => {
   return jest.fn(() => <div>Mocked LocationMarker</div>);
 });
 
+jest.mock('./components/SearchArea', () => {
+  return jest.fn(() => <div>Mocked SearchArea</div>);
+});
+
 test('Loading... is shown on site', () => {
   render(<App />);
   const loadingElement = screen.getByText(/Loading.../);
