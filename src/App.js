@@ -224,7 +224,6 @@ function App () {
   async function searchArea() {
     if (!map) {return}
     toDisplay = searchMapArea(map);
-    console.log(toDisplay);
   }
 
   async function filterTableArea(event) {

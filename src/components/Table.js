@@ -38,7 +38,6 @@ function filterTable(event, toDisplay) {
     var table = document.getElementById("applicationTable");
     var tr = table.getElementsByTagName("tr");
     var filterSelect = event.target;
-    console.log(toDisplay);
 
     for (let i = 0; i < tr.length; i++) {
         var row = tr[i];
