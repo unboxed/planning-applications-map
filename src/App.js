@@ -136,6 +136,7 @@ function App () {
   const [geojson, setGeojson] = useState(null);
   const [loading, setLoading] = useState(true);
   const [map, setMap] = useState(null);
+  let areaSearched = [];
   
   useEffect(() => {
     let applicationData = {};
@@ -209,19 +210,44 @@ function App () {
     var tr = table.getElementsByTagName("tr");
     var filterSelect = event.target;
 
-    for (let i = 0; i < tr.length; i++) {
-      var row = tr[i];
-      var td = row.getElementsByTagName("td")[4];
-      if (td) {
-        if ("None" === filterSelect.value) {
-          row.style.display = "";
-        } else if (td.innerHTML === filterSelect.value) {
-          row.style.display = "";
-        } else {
-          row.style.display = "none";
+    if (!areaSearched) {
+      for (let i = 0; i < tr.length; i++) {
+        var row = tr[i];
+        var td = row.getElementsByTagName("td")[4];
+        if (td) {
+          if ("None" === filterSelect.value) {
+            row.style.display = "";
+          } else if (td.innerHTML === filterSelect.value) {
+            row.style.display = "";
+          } else {
+            row.style.display = "none";
+          }
         }
       }
     }
+    else {
+      for (let i = 0; i < tr.length; i++) {
+        var row = tr[i];
+        var tdRef = row.getElementsByTagName("td")[1];
+        var td = row.getElementsByTagName("td")[4];
+        if (tdRef) {
+          console.log(areaSearched);
+          console.log(tdRef.innerText);
+          console.log(areaSearched.includes(tdRef.innerText));
+          if (areaSearched.includes(tdRef.innerText)) {
+            if ("None" === filterSelect.value) {
+              row.style.display = "";
+            } else if (td.innerHTML === filterSelect.value) {
+              row.style.display = "";
+            } 
+          }
+          else {
+            row.style.display = "none";
+          }
+        }
+      }
+    }
+
   }
 
   function sortTable() {
@@ -381,6 +407,7 @@ function App () {
   const searchMapArea = async() => {
     if (!map) { return; }
     var toDisplay = [];
+    areaSearched = [];
     
     map.eachLayer(function (layer) {
       if (layer._latlng === undefined) { return; }
@@ -397,22 +424,36 @@ function App () {
         var td = tr[i].getElementsByTagName("td")[1];
         var tdStat = tr[i].getElementsByTagName("td")[4];
         if (td) {
-          if (document.getElementById("filterSelect").value === "None") {
-            if (toDisplay.includes(td.innerText)) {
+          if (toDisplay.includes(td.innerText)) {
+            if (document.getElementById("filterSelect").value === "None" || document.getElementById("filterSelect").value === tdStat.innerText) {
               tr[i].style.display = "";
             }
-            else {
-              tr[i].style.display = "none";
+            if (!areaSearched.includes(td.innerText)){
+              areaSearched.push(td.innerText);
             }
           }
           else {
-            if (toDisplay.includes(td.innerText) && document.getElementById("filterSelect").value === tdStat.innerText) {
-              tr[i].style.display = "";
-            }
-            else {
-              tr[i].style.display = "none";
-            }
+            tr[i].style.display = "none";
           }
+
+
+
+          // if (document.getElementById("filterSelect").value === "None") {
+          //   if (toDisplay.includes(td.innerText)) {
+          //     tr[i].style.display = "";
+          //     setAreaSearched(areaSearched.append(tr[i]));
+          //   }
+          //   else {
+          //     tr[i].style.display = "none";
+          //   }
+          // }
+          // else {
+          //   if (toDisplay.includes(td.innerText) && document.getElementById("filterSelect").value === tdStat.innerText) {
+          //     tr[i].style.display = "";
+          //   }
+          //   else {
+          //   }
+          // }
         }
       }
     });
@@ -424,6 +465,7 @@ function App () {
       tr[i].style.display = "";
     }
     document.getElementById('filterSelect').selectedIndex = 0;
+    areaSearched = [];
   }
 
   const bindSearchToEnter = () => {
@@ -462,7 +504,7 @@ function App () {
             <GeoJSON data={geojson} onEachFeature={onEachFeature} />
             <div>
               <LocationMarker />
-              <button className="govuk-button govuk-button--secondary" onClick={searchMapArea} style={{position:"absolute", zIndex:4000, bottom:"-4%", marginLeft:"11em"}}>Search this area</button>
+              <button className="govuk-button govuk-button--secondary" onClick={searchMapArea} style={{ zIndex:4000, top:"554.25px", marginLeft:"11em"}}>Search this area</button>
             </div>
           </MapContainer>
         </div>
