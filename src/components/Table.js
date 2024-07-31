@@ -1,3 +1,36 @@
+function generateElements(html) {
+    const template = document.createElement('template');
+    template.innerHTML = html.trim();
+    return template.content;
+  }
+
+function populateTable(data) {
+    document.querySelector("#applicationTableBody").replaceChildren();
+
+    if (data === null) { return; }
+
+    const table = document.querySelector("#applicationTable").querySelector('tbody')
+
+    for (let i = 0; i < Object.keys(data.features).length; i++) {
+        var feature = data.features[i].properties;
+
+        let featureHTML = `<tr class='govuk-table__row'>
+          <td class='govuk-table__cell'>${feature.name} </td>
+          <td class='govuk-table__cell'>${feature.reference}</td>
+          <td class='govuk-table__cell'>${feature.description}</td>
+          <td class='govuk-table__cell'>${feature.recvDate}</td>
+          <td class='govuk-table__cell'>${feature.status}</td>`;
+
+        if (feature.publicUrl === undefined) { featureHTML += `<td class='govuk-table__cell'>N/A</td></tr>`; }
+
+        else {
+            featureHTML += `<td class='govuk-table__cell'><a class='govuk-link' href='${feature.publicUrl}' target='_blank'>More info</a></td></tr>`;
+        }
+
+        table.append(generateElements(featureHTML));
+    }
+}
+
 function filterTable(event) {
     var table = document.getElementById("applicationTable");
     var tr = table.getElementsByTagName("tr");
@@ -114,5 +147,5 @@ function resetTable() {
 //   }
 // }   
 
-export { sortTable, filterTable, resetTable };
+export { populateTable, sortTable, filterTable, resetTable };
 
