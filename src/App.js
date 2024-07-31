@@ -5,6 +5,7 @@ import './App.css';
 import './govuk-styles.scss';
 import axios from 'axios';
 import LocationMarker from './components/LocationMarker';
+import SearchArea from './components/SearchArea';
 import { populateTable, filterTable, sortTable, resetTable} from './components/Table';
 // import data from './london-spots.json';
 let pageSize = 50;
@@ -219,46 +220,6 @@ function App () {
     }
   };
 
-  const searchMapArea = async() => {
-    if (!map) { return; }
-    var toDisplay = [];
-    
-    map.eachLayer(function (layer) {
-      if (layer._latlng === undefined) { return; }
-
-      if (map.getBounds().contains(layer._latlng)) {
-        if (layer.feature) {
-          toDisplay.push(layer.feature.properties.reference);
-        }
-      }
-
-      var tr = document.getElementById("applicationTable").getElementsByTagName("tr");
-
-      for (let i = 0; i < tr.length; i++) {
-        var td = tr[i].getElementsByTagName("td")[1];
-        var tdStat = tr[i].getElementsByTagName("td")[4];
-        if (td) {
-          if (document.getElementById("filterSelect").value === "None") {
-            if (toDisplay.includes(td.innerText)) {
-              tr[i].style.display = "";
-            }
-            else {
-              tr[i].style.display = "none";
-            }
-          }
-          else {
-            if (toDisplay.includes(td.innerText) && document.getElementById("filterSelect").value === tdStat.innerText) {
-              tr[i].style.display = "";
-            }
-            else {
-              tr[i].style.display = "none";
-            }
-          }
-        }
-      }
-    });
-  }
-
   const bindSearchToEnter = () => {
     var input = document.getElementById("searchInput");
     if (input === null) { return }
@@ -296,7 +257,7 @@ function App () {
             <GeoJSON data={geojson} onEachFeature={onEachFeature} />
             <div>
               <LocationMarker />
-              <button className="govuk-button govuk-button--secondary" onClick={searchMapArea} style={{position:"absolute", zIndex:4000, bottom:"-4%", marginLeft:"11em"}}>Search this area</button>
+              <SearchArea />
             </div>
           </MapContainer>
         </div>
