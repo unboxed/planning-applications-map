@@ -5,6 +5,7 @@ function generateElements(html) {
   }
 
 function populateTable(data) {
+    let toDisplay = [];
     document.querySelector("#applicationTableBody").replaceChildren();
 
     if (data === null) { return; }
@@ -13,6 +14,7 @@ function populateTable(data) {
 
     for (let i = 0; i < Object.keys(data.features).length; i++) {
         var feature = data.features[i].properties;
+        toDisplay.push(feature.reference);
 
         let featureHTML = `<tr class='govuk-table__row'>
           <td class='govuk-table__cell'>${feature.name} </td>
@@ -29,9 +31,10 @@ function populateTable(data) {
 
         table.append(generateElements(featureHTML));
     }
+    return(toDisplay);
 }
 
-function filterTable(event) {
+function filterTable(event, toDisplay) {
     var table = document.getElementById("applicationTable");
     var tr = table.getElementsByTagName("tr");
     var filterSelect = event.target;
@@ -39,14 +42,20 @@ function filterTable(event) {
     for (let i = 0; i < tr.length; i++) {
         var row = tr[i];
         var td = row.getElementsByTagName("td")[4];
+        var tdRef = row.getElementsByTagName("td")[1];
         if (td) {
-            if ("None" === filterSelect.value) {
-                row.style.display = "";
-            } else if (td.innerHTML === filterSelect.value) {
-                row.style.display = "";
-            } else {
+            if (toDisplay.includes(tdRef.innerText)) {
+                if ("None" === filterSelect.value || td.innerHTML === filterSelect.value) {
+                    row.style.display = "";
+                } 
+                else {
+                    row.style.display = "none";
+                }
+            }
+            else {
                 row.style.display = "none";
             }
+            
         }
     }
 
@@ -113,14 +122,6 @@ function sortTable() {
     }
 }
 
-function resetTable() {
-    var tr = document.getElementById("applicationTable").getElementsByTagName("tr");
-    for (let i = 0; i < tr.length; i++) {
-        tr[i].style.display = "";
-    }
-    document.getElementById('filterSelect').selectedIndex = 0;
-}
-
 // function searchTable() {
 //   var input = document.getElementById("tableSearchInput").value.toUpperCase();
 //   var tr = document.getElementById("applicationTable").getElementsByTagName("tr");
@@ -147,5 +148,5 @@ function resetTable() {
 //   }
 // }   
 
-export { populateTable, sortTable, filterTable, resetTable };
+export { populateTable, sortTable, filterTable };
 
