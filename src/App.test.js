@@ -18,7 +18,7 @@ jest.mock('react-leaflet', () => {
   };
 });
 
-jest.mock('./LocationMarker', () => {
+jest.mock('./components/LocationMarker', () => {
   return jest.fn(() => <div>Mocked LocationMarker</div>);
 });
 
