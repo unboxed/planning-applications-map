@@ -5,7 +5,7 @@ import './App.css';
 import './govuk-styles.scss';
 import axios from 'axios';
 import LocationMarker from './components/LocationMarker';
-import {filterTable, sortTable, resetTable} from './components/Table';
+import { populateTable, filterTable, sortTable, resetTable} from './components/Table';
 // import data from './london-spots.json';
 let pageSize = 50;
 let zoomSize = 16;
@@ -63,12 +63,6 @@ function ready(fn) {
   }
 }
 
-function generateElements(html) {
-  const template = document.createElement('template');
-  template.innerHTML = html.trim();
-  return template.content;
-}
-
 // Parsing data acquired from GET request
 function parseJSON (data, iter, applicationData) {
   for (let i = 0; i < Object.keys(data.data).length; i++) {
@@ -92,7 +86,6 @@ function parseJSON (data, iter, applicationData) {
   }
 }
 
-
 // Make data GeoJSON format
 function toGeoJSON(data) {
   var result = {
@@ -110,9 +103,9 @@ function toGeoJSON(data) {
         "coordinates":[data[iter]["longitude"], data[iter]["latitude"]]
       },
       "properties":{
-        "name" : data[iter]["title"],
+        "name" : addresize(data[iter]["title"]),
         "description" : data[iter]["description"],
-        "status" : data[iter]["status"],
+        "status" : humanize(data[iter]["status"]),
         "reference" : data[iter]["reference"],
         "recvDate" : data[iter]["recvDate"],
         "publicUrl" : data[iter]["publicUrl"],
@@ -164,63 +157,32 @@ function App () {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const populateTable = async(data) => {
-    let loaded = false;
-    loaded = await(!loading);
-    if (loaded) {
-      document.querySelector("#applicationTableBody").replaceChildren();
-
-      if (data === null) {return;}
-
-      const table = document.querySelector("#applicationTable").querySelector('tbody')
-
-      for (let i = 0; i < Object.keys(data.features).length; i++) {
-        var feature = data.features[i].properties;
-
-        let featureHTML = `<tr class='govuk-table__row'>
-          <td class='govuk-table__cell'>${addresize(feature.name)} </td>
-          <td class='govuk-table__cell'>${feature.reference}</td>
-          <td class='govuk-table__cell'>${feature.description}</td>
-          <td class='govuk-table__cell'>${feature.recvDate}</td>
-          <td class='govuk-table__cell'>${humanize(feature.status)}</td>`;
-
-        if (feature.publicUrl === undefined) { featureHTML += `<td class='govuk-table__cell'>N/A</td></tr>`; }
-
-        else {
-          featureHTML += `<td class='govuk-table__cell'><a class='govuk-link' href='${feature.publicUrl}' target='_blank'>More info</a></td></tr>`;
-        }
-
-        table.append(generateElements(featureHTML));
-      }
-    }
-  }
-
   const onEachFeature = (feature, layer) => {
     if (feature.properties && feature.properties.description && feature.properties.status && feature.properties.publicUrl) {
 
       const div = document.createElement('div');
-      div.innerHTML = `<h3 class="govuk-heading-m" style="font-size: 20px">${addresize(feature.properties.name)}</h3>
+      div.innerHTML = `<h3 class="govuk-heading-m" style="font-size: 20px">${feature.properties.name}</h3>
         <p class="govuk-body" style="font-size: 14px">Reference: ${feature.properties.reference}</p>
         <p class="govuk-body" style="font-size: 14px">Planned work: ${feature.properties.description}</p>
-        <p class="govuk-body" style="font-size: 14px">Current status: ${humanize(feature.properties.status)}</p>
+        <p class="govuk-body" style="font-size: 14px">Current status: ${feature.properties.status}</p>
         <a class="govuk-link" style="font-size: 14px" href="${feature.properties.publicUrl}" target="_blank">More info</a>`;
       layer.bindPopup(div);
     }
     else if (feature.properties && feature.properties.description && feature.properties.status) {
 
       const div = document.createElement('div');
-      div.innerHTML = `<h3 class="govuk-heading-m" style="font-size: 20px">${addresize(feature.properties.name)}</h3>
+      div.innerHTML = `<h3 class="govuk-heading-m" style="font-size: 20px">${feature.properties.name}</h3>
         <p class="govuk-body" style="font-size: 14px">Reference: ${feature.properties.reference}</p>
         <p class="govuk-body" style="font-size: 14px">Planned work: ${feature.properties.description}</p>
         <p class="govuk-body" style="font-size: 14px">Current status: ${feature.properties.status}</p>`;
       layer.bindPopup(div);
     }
     else if (feature.properties && feature.properties.description) {
-      layer.bindPopup(`<h3 class="govuk-heading-m" style="font-size: 20px">${addresize(feature.properties.name)}</h3>
+      layer.bindPopup(`<h3 class="govuk-heading-m" style="font-size: 20px">${feature.properties.name}</h3>
         <p class="govuk-body" style="font-size: 14px">Planned work: ${feature.properties.description}</p>`);
     }
     else if (feature.properties) {
-      layer.bindPopup(`<h3 class="govuk-heading-m" style="font-size: 20px">${addresize(feature.properties.name)}</h3>`);
+      layer.bindPopup(`<h3 class="govuk-heading-m" style="font-size: 20px">${feature.properties.name}</h3>`);
     }
   };
 
@@ -312,7 +274,8 @@ function App () {
   if (loading) {return (<div>Loading...</div>);}
 
   ready(async() => {
-    populateTable(geojson);
+    let loaded = await (!loading);
+    if (loaded) {populateTable(geojson);}
   });
 
   return (
