@@ -44,17 +44,20 @@ const fetchData = async (link) => {
   }
 };
 
-const fetchPostCode = async(postcode) => {
+const fetchPostCode = async (postcode) => {
   try {
-    const response = await axios.get('https://api.postcodes.io/postcodes/' + postcode);
+    const encoded = encodeURIComponent(postcode);
+    const response = await axios.get(
+      'https://api.postcodes.io/postcodes/' + encoded
+    );
     if (response.data.status === 200) {
       return [response.data.result.longitude, response.data.result.latitude];
     }
   } catch (e) {
     console.log(e);
-    return 'failed!'
+    return 'failed!';
   }
-}
+};
 
 function ready(fn) {
   if (document.readyState !== 'loading') {
@@ -343,3 +346,4 @@ function App () {
 }
 
 export default App;
+export { fetchPostCode };
