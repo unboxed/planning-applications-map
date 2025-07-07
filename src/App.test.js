@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect'; 
-import App from './App';
+import App, { fetchPostCode } from './App';
 import axios from 'axios';
 
 jest.mock('axios');
@@ -133,4 +133,19 @@ test("Status filter can exclude some values", async () => {
 
   expect(referenceElement1.parentElement.style.display).toEqual("none");
   // expect(referenceElement2.parentElement.style.display).not.toEqual("none");
+});
+
+test('fetchPostCode encodes the postcode in the request URL', async () => {
+  axios.get.mockResolvedValue({
+    data: {
+      status: 200,
+      result: { longitude: 1, latitude: 2 },
+    },
+  });
+
+  await fetchPostCode('EC1A 1BB');
+
+  expect(axios.get).toHaveBeenCalledWith(
+    'https://api.postcodes.io/postcodes/' + encodeURIComponent('EC1A 1BB')
+  );
 });
