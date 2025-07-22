@@ -121,6 +121,7 @@ function App () {
   const [geojson, setGeojson] = useState(null);
   const [loading, setLoading] = useState(true);
   const [map, setMap] = useState(null);
+  const [darkMode, setDarkMode] = useState(false);
   let toDisplay, allResults = [];
   
   useEffect(() => {
@@ -226,6 +227,10 @@ function App () {
     toDisplay = searchMapArea(map);
   }
 
+  function toggleDarkMode() {
+    setDarkMode((prev) => !prev);
+  }
+
   async function filterTableArea(event) {
     filterTable(event, toDisplay);
   }
@@ -274,15 +279,18 @@ function App () {
           <MapContainer ref={setMap} center={[51.505, -0.09]} zoom={13}>
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              url={darkMode ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"}
             />
             <GeoJSON data={geojson} onEachFeature={onEachFeature} />
             <div>
               <LocationMarker />
-              <Button onClick={searchArea} buttonColour="#f3f2f1" buttonHoverColour="#ffdd00" buttonShadowColour="#929191" buttonTextColour="#0b0c0c" 
+              <Button onClick={searchArea} buttonColour="#f3f2f1" buttonHoverColour="#ffdd00" buttonShadowColour="#929191" buttonTextColour="#0b0c0c"
             style={{ position: 'absolute', bottom: '-4%', marginLeft: "11em", zIndex: 4000, width: '170px' }}>
                 Search this area
-            </Button>
+              </Button>
+              <Button onClick={toggleDarkMode} style={{ position: 'absolute', bottom: '-4%', marginLeft: "24em", zIndex: 4000, width: '150px' }}>
+                {darkMode ? 'Light Mode' : 'Dark Mode'}
+              </Button>
             </div>
           </MapContainer>
         </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
+import { render, screen, waitFor, waitForElementToBeRemoved, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect'; 
 import App from './App';
 import axios from 'axios';
@@ -133,4 +133,22 @@ test("Status filter can exclude some values", async () => {
 
   expect(referenceElement1.parentElement.style.display).toEqual("none");
   // expect(referenceElement2.parentElement.style.display).not.toEqual("none");
+});
+
+test('Dark mode toggle changes button label', async () => {
+  axios.get.mockResolvedValue({
+    data: {
+      data: {},
+      links: { next: null },
+    },
+  });
+
+  render(<App />);
+
+  await waitForElementToBeRemoved(() => screen.queryByText('Loading...'));
+
+  const toggleButton = screen.getByRole('button', { name: /dark mode/i });
+  fireEvent.click(toggleButton);
+
+  expect(screen.getByRole('button', { name: /light mode/i })).toBeInTheDocument();
 });
